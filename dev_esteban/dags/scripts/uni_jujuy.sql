@@ -1,6 +1,7 @@
 SELECT 
 "university", "career",
 "inscription_date",
+"nombre",
 REGEXP_REPLACE("nombre", '\s+\S+$', '') AS firstname,
 REGEXP_REPLACE("nombre", '^.*\s+(\S+)$', '\1') AS lastname,
 "sexo",

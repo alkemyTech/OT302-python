@@ -2,7 +2,8 @@ SELECT
 "universidad", "careers",
 "fecha_de_inscripcion",
 "names",
-"sexo",
+REGEXP_REPLACE("names",'[djmrs]*[\.]_*','') AS "curate_name",
+"sexo", "birth_dates",
 EXTRACT(YEAR FROM age(CAST("birth_dates" as DATE))) as "age",
 "codigo_postal", 
 "correos_electronicos"

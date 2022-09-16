@@ -1,2 +1,6 @@
-### GitIgnore ###
-dag_uni_c.py
+### Files ###
+dagg_uni_c.py
+requirements.txt
+
+### Folders ###
+*__pycache__/

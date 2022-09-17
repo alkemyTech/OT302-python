@@ -19,7 +19,7 @@ with DAG(
     dag_id = 'dag_etl_utn_untref',
     default_args = default_args,
     description = 'ETL Consulta a UTN/UNTREF para carga en S3',
-    start_date = datetime(2022, 9, 16)
+    start_date = datetime(2022, 9, 16),
     # Use datetime.timedelta also can be used crontab
     schedule_interval = timedelta(hours = 1),
     catchup = False

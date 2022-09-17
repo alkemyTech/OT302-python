@@ -29,11 +29,14 @@ with DAG(
     #    task_id = 'initial_operation'
     #    #DummyOperator just in case any init proceess needed
     #)
-    
+
     # Extract task
     # Operator to perform sql queries on each university
     sql_queries = DummyOperator(
-        task_id = 'sql_queries'
+        task_id = 'sql_queries',
+        #Add retries arg at operator level
+        #Will retry 5 times just in the sql queries and not other tasks
+        retries = 5
         #To be replaced with PythonOperator to make SQL queries
     )
 
@@ -43,7 +46,7 @@ with DAG(
         task_id = 'transform_pandas'
         #Replace with PythonOperator to import pandas for data transformation
     )
-    
+
     # Load task
     # Operator to load transformed data into AWS S3
     load_S3 = DummyOperator(

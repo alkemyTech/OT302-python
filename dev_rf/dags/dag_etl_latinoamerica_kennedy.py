@@ -6,6 +6,7 @@ from airflow.providers.amazon.aws.hooks.s3 import S3Hook
 
 from datetime import datetime, timedelta
 
+# 5 retries for the tasks
 default_args = {"owner": "rf", "retries": 5, "retry_delta": timedelta(minutes=2)}
 
 

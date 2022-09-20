@@ -1,6 +1,7 @@
 from airflow import DAG
 from datetime import timedelta, datetime
-# from airflow.operators.python import PythonOperator
+from airflow.operators.python import PythonOperator
+# from airflow.providers.postgres.operators.postgres import PostgresOperator
 
 default_args = {
 	'owner' : 'Daniel Casvill',
@@ -20,10 +21,16 @@ with DAG(
 	default_args=default_args
 ) as dag:
 
-	# extract_task = PythonOperator(task_id= "extract", python_callable= extract)
-	# transform_task = PythonOperator(task_id= "transform", python_callable= transform)
-	# load_task = PythonOperator(task_id= "load", python_callable= load)
+	# extract_task = PostgresOperator(task_id= "extract", 
+	# 								postgres_conn_id="postgres_default", 
+	# 								sql= extract_file.sql)
+
+	# transform_task = PythonOperator(task_id= "transform", 
+	# 								python_callable= transform_file.py)
+
+	# load_task = PythonOperator(task_id= "load", 
+	# 						   python_callable= load_file.py)
 
 	# extract_task >> transform_task >> load_task
 
-    pass
+    # pass

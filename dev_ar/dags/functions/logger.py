@@ -31,7 +31,7 @@ def logger(
     if not Path(logger_file_path).exists():
         Path(logger_file_path).mkdir(parents = False, exist_ok = False)
     # Create File Handler
-    # Check also StreamHandler() with sys.stdout
+    # (also can be used StreamHandler() with sys.stdout)
     file_handler = logging.FileHandler(Path(logger_file_path, logger_file_name).with_suffix('.txt'))
     # Create Formatter and add It to Handler
     custom_formatter = logging.Formatter(

@@ -1,71 +1,98 @@
+#import tools
 from airflow import DAG
+from datetime import timedelta, datetime
 
+# Import operators
+# from airflow.operators.dummy_operator import DummyOperator
+# from airflow.operators.bash import BashOperator
+# from airflow.providers.postgres.operators.postgres import PostgresOperator
+# from airflow.operators.python import PythonOperator
+# from airflow.providers.amazon.aws.operators.s3 import S3CreateObjectOperator
+
+
+# creating default config for dag
 default_args={
     'owner':'dev esteban boada',
+    'retries':5,
+    'retry_delay':timedelta(minutes=5)
 }
 
+# definning DAG
 with DAG(
-    dag_id='dag_uni_c',
+    dag_id='dag_uni_c_retries',
     default_args=default_args,
     description='''
     Ejecutar tareas de universidades del grupo C.
         * Universidad de Palermo
         * Universidad Nacional de Jujuy
-    '''
+    ''',
+    start_date=datetime(2022, 10, 1, 9),
+    schedule_interval='@hourly',
+    catchup=False
+
 ) as dag:
+  
+# Define task.
     '''
     Operators a implementar:
-     
-    task1 = bash_operator - Desplegar servidor de postgres de manera local
-            airflow.operators.bash.BashOperator
-            -> bash_command - direccionar a script .sh
 
-    task2_1 = postgresql_operator - Ejecutar scripts sql para extraer data jujuy_utn
-                airflow.providers.postgres.operators.postgres
-                -> sql - direccion de sql file
-                -> postgres_conn_id - specificar database o conexion
-                -> autocommit - ejecuciones de comits sql
-                -> retries = 5
-                -> retry_delay = timedelta(minutes=5)
+    #Initi PostgreSQL Server
+    connect_psql = BashOperator(
+        bash_command='prepare.sh',
+        env={
+            'env_var1':'path/javajdk.jar',
+            'env_var2':'path/postgres/'
+        }
+    )
+    #Execute Queries Jujuy and Palermo
+    query_jujuy = PostgresOperator(
+        sql='scripts/uni_jujuy.sql',
+        postgres_conn_id='postgresql://alkymer2:Alkemy23@199.59.243.222:5432/training?sslmode=verify-ca&sslcert=%2Ftmp%2Fclient-cert.pem&sslkey=%2Ftmp%2Fclient-key.pem&sslrootcert=%2Ftmp%2Fserver-ca.pem',   
+        autocommit=True
+    )
+    transform_jujuy = PythonOperator(
+        python_callable='functions/jujuy_transform.py',
+        op_kwargs={
+            'var1':'in_var1_module',
+            'var2':'in_var2_module'
+        }
+    )
 
-    task3_1 = Curar informacion optenida jujuy_utn
-                airflow.operators.python.PythonOperator
-                -> python_callable - llamar y ejecutar un modulo .py
-                -> op_kwargs - dict con argumentos que serian enviados al modulo .py
-
-    task2_2 = postgresql_operator - Ejecutar scripts sql para extraer data uni_palermo
-                airflow.providers.postgres.operators.postgres
-                -> sql - direccion de sql file
-                -> postgres_conn_id - specificar database o conexion
-                -> autocommit - ejecuciones de comits sql
-                -> retries = 5
-                -> retry_delay = timedelta(minutes=5)
-
-    task3_2 = Curar informacion optenida uni_palermo
-                airflow.operators.python.PythonOperator
-                -> python_callable - llamar y ejecutar un modulo .py
-                -> op_kwargs - dict con argumentos que serian enviados al modulo .py
+    #Transform Data Jujuy and Palermo
+    query_palermo = PostgresOperator(
+        sql='scripts/uni_palermo.sql',
+        postgres_conn_id='postgresql://alkymer2:Alkemy23@199.59.243.222:5432/training?sslmode=verify-ca&sslcert=%2Ftmp%2Fclient-cert.pem&sslkey=%2Ftmp%2Fclient-key.pem&sslrootcert=%2Ftmp%2Fserver-ca.pem',   
+        autocommit=True
+    )
+    transform_palermo = PythonOperator(
+        python_callable='functions/palermo_transform.py',
+        op_kwargs={
+            'var1':'in_var1_module',
+            'var2':'in_var2_module'
+        }
+    )
     
-    taks4_1 = Cargar data procesada jujuy_utn a S3 AWS.
-                S3CreateObjectOperator
-                    -> aws_conn_id - id conexion a aws
-                    -> s3_key - id del objeto a escribir
-                    -> data - data para escrbir
-                    -> replace - True o flase reemplazar data
+    #Load transformed data to AWS.S3
+    load_jujuy = S3CreateObjectOperator(
+        aws_conn_id='',
+        s3_key='',
+        data='',
+        replace=True
+    )
+    load_palermo = S3CreateObjectOperator(
+        aws_conn_id='',
+        s3_key='',
+        data='',
+        replace=True
+    )
 
-    taks4_2 = Cargar data procesada uni_palermo a S3 AWS.
-                S3CreateObjectOperator
-                    -> aws_conn_id - id conexion a aws
-                    -> s3_key - id del objeto a escribir
-                    -> data - data para escrbir
-                    -> replace - True o flase reemplazar data
-
-    task1.set_downstream(task2_1, task2_2)
-    task2_1.set_downstream(task3_1)
-    task2_2.set_downstream(task3_2)
-    task3_1.set_downstream(task4_1)
-    task3_2.set_downstream(task4_2)
+    connect_psql.set_downstream(query_jujuy, query_palermo)
+    query_jujuy.set_downstream(transform_jujuy)
+    query_palermo.set_downstream(transform_palermo)
+    transform_jujuy.set_downstream(load_jujuy)
+    transform_palermo.set_downstream(load_palermo)
     --------------------------------------------
-    task1 >> [task2_1, task2_2] >> [task3_1,task3_2] >> [task4_1, taks4_2]
+    connect_sql >> [query_jujuy, query_palermo] >> [transform_jujuy,transform_palermo] >> [load_jujuy, load_palermo]
+
     '''
     pass

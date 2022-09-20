@@ -1,5 +1,6 @@
 from airflow import DAG
 from datetime import timedelta, datetime
+# from airflow.operators.python import PythonOperator
 
 default_args = {
 	'owner' : 'Daniel Casvill',
@@ -19,5 +20,10 @@ with DAG(
 	default_args=default_args
 ) as dag:
 
+	# extract_task = PythonOperator(task_id= "extract", python_callable= extract)
+	# transform_task = PythonOperator(task_id= "transform", python_callable= transform)
+	# load_task = PythonOperator(task_id= "load", python_callable= load)
+
+	# extract_task >> transform_task >> load_task
 
     pass

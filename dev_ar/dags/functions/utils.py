@@ -1,8 +1,13 @@
+# Functions use in DAGs
+
 # Modules
 import logging
 from pathlib import Path
+from decouple import config
+from sqlalchemy import create_engine
 
 # Functions
+# Logger Function OT302-40
 def logger(
     logger_name = 'test',
     logger_format = '%(asctime)s - %(name)s - %(message)s',
@@ -43,3 +48,16 @@ def logger(
     custom_logger.addHandler(file_handler)
     # Return Logger
     return custom_logger
+
+# Extract Function OT302-48
+def get_sql():
+    """_summary_
+
+    Returns:
+        _type_: _description_
+    """
+    engine_string = 'postgresql://{}:{}@{}/{}'.format(db_user, db_password, db_host, db_name)
+    engine = create_engine(engine_string)
+    with engine.connect() as conn:
+        result = conn.execute(sqlalchemy)
+    return query

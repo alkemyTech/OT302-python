@@ -1,4 +1,3 @@
--- UNIVERSIDAD DE MORÓN:
 SELECT universidad AS university,
 	   carrerra AS career,
 	   fechaiscripccion AS inscription_date,
@@ -15,7 +14,6 @@ AND '02-01-2021')
 AND universidad = 'Universidad de morón';
 
 
--- UNIVERSIDAD DE RÍO CUARTO:
 SELECT univiersities AS university,
 	   carrera AS career,
 	   inscription_dates AS inscription_date,

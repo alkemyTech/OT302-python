@@ -106,8 +106,8 @@
 
 #------------------------------------------------------------------------------------------------------
 
-# import sys
-# sys.path.insert(0, '/root/airflow/dags')
+import sys
+sys.path.insert(0, '/root/airflow/dags')
 from airflow import DAG
 from datetime import timedelta, datetime
 from airflow.operators.python import PythonOperator
@@ -120,12 +120,16 @@ import csv
 init_logger()
 
 host = "training-main.cghe7e6sfljt.us-east-1.rds.amazonaws.com"
-SQL_PATH = "scripts\extract_info_from_universidad_de_moron.sql"
+SQL_PATH = "extract_info_from_universidad_de_moron.sql"
 user = "alkymer2"
 password="Alkemy23"
 database="training"
 
-
+def generar_csv(file_name,record):
+    with open(file_name+".csv", 'w',newline='',encoding="utf-8") as f:
+        writer = csv.writer(f, delimiter=',')
+        for elemento in record:
+            writer.writerow(elemento)
 
 def cargar_sql() -> None:
     """
@@ -149,18 +153,15 @@ def cargar_sql() -> None:
                     #Open de sql file, read it and execute it:
                     with open(SQL_PATH,'r',encoding="utf-8") as my_file:
                         data = my_file.read()
-                        print("yes") if (";" in data) else print("not")
-                        cursor.execute(data)
-
-                    #Save the result of the sql execution:
+                    data = data.split(";")
+                    print(data[0])
+                    cursor.execute(data[0])
                     record = cursor.fetchall()
-
-                    #Open/create 
-                    with open("moron.csv", 'w',newline='',encoding="utf-8") as f:
-                        writer = csv.writer(f, delimiter=',')
-
-                        for elemento in record:
-                            writer.writerow(elemento)
+                    generar_csv('Universidad de morón',record)
+                    record = ""
+                    cursor.execute(data[1])
+                    record = cursor.fetchall()
+                    generar_csv('Universidad-nacional-de-río-cuarto',record)
 
 
                 except (Exception) as error:
@@ -172,7 +173,6 @@ def cargar_sql() -> None:
         print(f"load.py -> cargar_sql(): 'with psycopg2.connect' Error: {error}")
 
 
-cargar_sql()
 default_args = {
  'owner' : 'Daniel Casvill',
  'depends_on_past' : False,
@@ -197,4 +197,4 @@ with DAG(
         test_task = BashOperator(task_id= "test", bash_command= "pwd")
         extract_task >> test_task
 
-cargar_sql()
+# cargar_sql()

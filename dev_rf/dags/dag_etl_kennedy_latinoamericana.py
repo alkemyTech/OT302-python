@@ -1,17 +1,14 @@
 from airflow import DAG
 
 from airflow.operators.python import PythonOperator
-from airflow.providers.postgres.hooks.postgres import PostgresHook
 from airflow.providers.amazon.aws.hooks.s3 import S3Hook
 
 from datetime import datetime, timedelta
 
+from functions.sql_queries import sql_queries
+
 # 5 retries for the tasks
 default_args = {"owner": "rf", "retries": 5, "retry_delta": timedelta(minutes=2)}
-
-
-def sql_queries():
-    """This function is going to use a Postgres Hook to perform the SQL queries to the db"""
 
 
 def pandas_processing():
@@ -23,7 +20,7 @@ def s3_loading():
 
 
 with DAG(
-    dag_id="alkemy_latinoamericana_kennedy",
+    dag_id="alkemy_kennedy_latinoamericana",
     default_args=default_args,
     start_date=datetime(2022, 9, 19),
     schedule_interval="0 * * * *",
@@ -31,7 +28,14 @@ with DAG(
     pass
 
     # 1 - Task to perform the SQL Queries
-    queries = PythonOperator(task_id="sql-queries", python_callable=sql_queries)
+    queries = PythonOperator(
+        task_id="sql-queries",
+        python_callable=sql_queries,
+        op_kwargs={
+            "path_sql": "/opt/airflow/dags/scripts/sql_univ_kennedy_latinoamericana.sql",
+            "airflow_connection_id": "postgres_alkemy",
+        },
+    )
 
     # 2 - Task to perform the pandas processing
     pandas = PythonOperator(task_id="pandas-processing", python_callable=pandas_processing)

@@ -2,9 +2,11 @@
 
 # Modules
 import logging
+import csv
+from os.path import basename
 from pathlib import Path
-from decouple import config
-from sqlalchemy import create_engine
+from decouple import config, RepositoryEnv, Config
+from sqlalchemy import create_engine,text
 
 # Functions
 # Logger Function OT302-40
@@ -23,8 +25,8 @@ def logger(
         logger_name (str, optional): Logger name. Defaults to 'test'.
         logger_format (str, optional): Log format. Defaults to '%(asctime)s - %(name)s - %(message)s'.
         logger_datefmt (str, optional): Format time in datetime format. Defaults to '%Y-%m-%d'.
-        logger_file_path (str, optional): Log file name and relative path. Defaults to 'logs'.
-        logger_file_name (str, optional): relative path name. Defaults to 'logs'
+        logger_file_path (str, optional): Relative path name. Defaults to 'logs'.
+        logger_file_name (str, optional): File name. Defaults to 'logs'
     Returns:
         (logging.logger) : configured logging logger object
     """
@@ -50,14 +52,80 @@ def logger(
     return custom_logger
 
 # Extract Function OT302-48
-def get_sql():
-    """_summary_
-
-    Returns:
-        _type_: _description_
+def extract_from_sql(
+    sql_file_name,
+    csv_path = './data'
+):
     """
-    engine_string = 'postgresql://{}:{}@{}/{}'.format(db_user, db_password, db_host, db_name)
+    Extracts info from database using SQL sentences from SQL file and creates CSV files with each query
+    Uses get_db_settings() and get_sql_queries() aux functions.
+    Columns names from SQL table in CSV header
+    Args
+        sql_file_name (str): SQL file path name
+        csv_path (str, optional) : Relative path name
+    Returns:
+        (None): Creates CSV file
+    """
+    # Engine set up with settings from external file
+    engine_string = 'postgresql://{p[0]}:{p[1]}@{p[2]}:{p[3]}/{p[4]}'.format(p = get_db_settings())
     engine = create_engine(engine_string)
-    with engine.connect() as conn:
-        result = conn.execute(sqlalchemy)
-    return query
+    # Raw Connection and cursor
+    connection = engine.raw_connection()
+    # Get SQL queries using ext function
+    queries = get_sql_queries(sql_file_name = sql_file_name)
+    # Add later except Exception block
+    try:
+        cursor = connection.cursor()
+        for n, q in enumerate(queries):
+            cursor.execute(q)
+            # Get columns names from cursor
+            columns = [col[0] for col in cursor.description]
+            raw_data = cursor.fetchall()
+            csv_file_name = Path(csv_path, f'{n}_{sql_file_name}').with_suffix('.csv')
+            with open(csv_file_name, 'w') as f:
+                csv_writer = csv.writer(f, delimiter = ',')
+                # First write columns name then data
+                csv_writer.writerow(columns)
+                csv_writer.writerows(raw_data)
+    finally:
+        cursor.close()
+        connection.close()
+
+# Aux Functions
+# Get Settings
+def get_db_settings():
+    """
+    Get Engine DB Settings from .ini file 
+    Returns:
+        (list): settings in proper format order 
+    """
+    SETTINGS_FILE = 'settings.ini'
+    env_config = Config(RepositoryEnv(SETTINGS_FILE))
+    db_settings = [
+        env_config.get('DB_USER'),
+        env_config.get('DB_PASSWORD'),
+        env_config.get('DB_HOST'),
+        env_config.get('DB_PORT', cast = int),
+        env_config.get('DB_NAME')
+    ]
+    return db_settings
+
+# Get query from sql file
+def get_sql_queries(sql_file_name,
+                    sql_path = './scripts'
+):
+    """
+    Returns list of queries in string format from SQL file.
+    Splits sql sentences using ';' char and removes 0 length strings
+    Args:
+        sql_file_name (string): file name
+        sql_path (str, optional) : Relative path name
+    Returns:
+        (list): SQL queries
+    """
+    # sql_file_name = './scripts/uni_utn_untref.sql'
+    sql_file_name = Path(sql_path, sql_file_name).with_suffix('.sql')
+    with open(sql_file_name, 'r') as f:
+        sql_query = f.read()
+    # Use of list comprehension for removing zero lenght strings
+    return [e for e in sql_query.split(';') if len(e) > 0]

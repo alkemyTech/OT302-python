@@ -1,12 +1,16 @@
 import logging
 import csv
 import psycopg2
+from decouple import config
+import pathlib
+work_path = pathlib.Path().absolute()
 
-host = "training-main.cghe7e6sfljt.us-east-1.rds.amazonaws.com"
-SQL_PATH = "extract_info_univerity_moron_n_university_rio_cuarto.sql"
-user = "alkymer2"
-password="Alkemy23"
-database="training"
+host= config('HOST')
+user= config('USER')
+password= config('PASSWORD')
+database= config('DATABASE')
+sql_path = fr"{work_path}\{config('SQL_PATH')}"
+
 
 def generar_csv(file_name,record):
     with open(file_name+".csv", 'w',newline='',encoding="utf-8") as f:
@@ -14,7 +18,7 @@ def generar_csv(file_name,record):
         for elemento in record:
             writer.writerow(elemento)
 
-def cargar_sql(SQL_PATH:str) -> None:
+def cargar_sql(SQL_PATH:str = sql_path) -> None:
     """
     Ejecuta el archivo .sql pasado por parámetro.
     Parameters:

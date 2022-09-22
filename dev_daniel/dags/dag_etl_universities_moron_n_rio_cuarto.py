@@ -1,19 +1,22 @@
+#This is to have the work directory path:
 import pathlib
 work_path = pathlib.Path().absolute()
 
+#This is to load the created modules correctly:
 import sys
 sys.path.insert(0, fr'{work_path}')
 
-from airflow import DAG
-from datetime import timedelta, datetime
-from airflow.operators.python import PythonOperator
+#Modules created:
 from functions.logger import init_logger
 from functions.extract import cargar_sql
 
+#Other:
+from airflow import DAG
+from datetime import timedelta, datetime
+from airflow.operators.python import PythonOperator
 import logging
 
-SQL_PATH = fr"{work_path}\scripts\extract_info_univerity_moron_n_university_rio_cuarto.sql"
-
+#To configure the loggger:
 init_logger()
 
 
@@ -39,8 +42,7 @@ with DAG(
 
 
         extract_task = PythonOperator(task_id= "extract", 
-                                      python_callable= cargar_sql,
-									  op_kwargs={SQL_PATH:SQL_PATH})
+                                      python_callable= cargar_sql)
         extract_task
 
-cargar_sql(SQL_PATH)
+cargar_sql()

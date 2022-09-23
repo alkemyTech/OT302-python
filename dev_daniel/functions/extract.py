@@ -1,32 +1,52 @@
 import logging
 import csv
 import psycopg2
-from decouple import config
 import pathlib
-work_path = pathlib.Path().absolute()
-
+import os
+from decouple import config
+#---------------------------------------------------------------------
+work_path = pathlib.Path().resolve()
+#---------------------------------------------------------------------
 host= config('HOST')
 user= config('USER')
 password= config('PASSWORD')
 database= config('DATABASE')
-sql_path = fr"{work_path}\{config('SQL_PATH')}"
+sql_name = config('SQL_NAME')
+#---------------------------------------------------------------------------------
 
+def generate_csv(file_name:str, record:list, dir_name:str = 'data'):
+    '''
+    Generates a csv file from a list of data.
 
-def generar_csv(file_name,record):
-    with open(file_name+".csv", 'w',newline='',encoding="utf-8") as f:
-        writer = csv.writer(f, delimiter=',')
-        for elemento in record:
-            writer.writerow(elemento)
-
-def cargar_sql(SQL_PATH:str = sql_path) -> None:
-    """
-    Ejecuta el archivo .sql pasado por parámetro.
     Parameters:
-    SQL_PATH: Ubicación del archivo .sql
+    file_name: The name under which the file will be stored.
+               It can contains the relative path.
+    record: The data that will be stored.
+    dir_name: Optional. Directory name where the file will be stored.
+                        The default directory name is 'data'
+
     Return:
     None
-    """
+    '''
+    os.makedirs(os.path.dirname(f'{work_path}/{dir_name}/'), exist_ok=True)
 
+    with open(f"{dir_name}/{file_name}.csv", 'w', newline='', encoding="utf-8") as f:
+        writer = csv.writer(f, delimiter=',')
+        for element in record:
+            writer.writerow(element)
+
+#-------------------------------------------------------------------------------------
+
+def load_sql(sql_name:str = sql_name) -> None:
+    """
+    Executes the .sql file passed by parameter.
+
+    Parameters:
+    sql_name: Name of the .sql file (Must include the relative path).
+
+    Return:
+    None
+    """ 
     try:
         with psycopg2.connect(host=host,
                                 user=user,
@@ -37,23 +57,31 @@ def cargar_sql(SQL_PATH:str = sql_path) -> None:
 
             with conn.cursor() as cursor:
                 try:
-                    #Open de sql file, read it and execute it:
-                    with open(SQL_PATH,'r',encoding="utf-8") as my_file:
+                    #Open the sql file, and read it:
+                    with open(sql_name,'r',encoding="utf-8") as my_file:
                         data = my_file.read()
+
+                    #Divide the data by the queries
                     data = data.split(";")
+
+                    #Run the first query:
                     cursor.execute(data[0])
                     record = cursor.fetchall()
-                    generar_csv('Universidad de morón',record)
+                    generate_csv('Universidad de morón',record)
+                    
                     record = ""
+
+                    #Run the second query:
                     cursor.execute(data[1])
                     record = cursor.fetchall()
-                    generar_csv('Universidad-nacional-de-río-cuarto',record)
+                    generate_csv('Universidad-nacional-de-río-cuarto',record)
 
 
                 except (Exception) as error:
-                    logging.error(f"load.py: cargar_sql: 'with open(SQL_PATH)' Error: {error}")
-                    print(f"Error: load.py: cargar_sql: 'with open(SQL_PATH)' Error: {error}")
+                    logging.error(f"extract.py: load_sql(): 'with open(sql_name):'. {error}")
+
 
     except (Exception) as error:
-        logging.error(f"load.py -> cargar_sql(): 'with psycopg2.connect' Error: {error}")
-        print(f"load.py -> cargar_sql(): 'with psycopg2.connect' Error: {error}")
+        logging.error(f"extract.py -> load_sql(): 'with psycopg2.connect():'. {error}")
+
+#------------------------------------------------------------------------------------------------

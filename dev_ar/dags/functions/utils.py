@@ -3,10 +3,10 @@
 # Modules
 import logging
 import csv
-from os.path import basename
+import os
 from pathlib import Path
-from decouple import config, RepositoryEnv, Config
-from sqlalchemy import create_engine,text
+from decouple import RepositoryEnv, Config
+from sqlalchemy import create_engine
 
 # Functions
 # Logger Function OT302-40
@@ -34,7 +34,9 @@ def logger(
     custom_logger = logging.getLogger(logger_name)
     # Set Level
     custom_logger.setLevel(logging.INFO)
-    # Check if dir exists 
+    # Check if dir exists
+    my_dir = Path(os.path.dirname(os.path.abspath(__file__))).parent
+    logger_file_path = Path(my_dir, logger_file_path)
     if not Path(logger_file_path).exists():
         Path(logger_file_path).mkdir(parents = False, exist_ok = False)
     # Create File Handler
@@ -81,7 +83,8 @@ def extract_from_sql(
             # Get columns names from cursor
             columns = [col[0] for col in cursor.description]
             raw_data = cursor.fetchall()
-            csv_file_name = Path(csv_path, f'{n}_{sql_file_name}').with_suffix('.csv')
+            my_dir = Path(os.path.dirname(os.path.abspath(__file__))).parent
+            csv_file_name = Path(my_dir, csv_path, f'{n}_{sql_file_name}').with_suffix('.csv')
             with open(csv_file_name, 'w') as f:
                 csv_writer = csv.writer(f, delimiter = ',')
                 # First write columns name then data
@@ -99,7 +102,8 @@ def get_db_settings():
     Returns:
         (list): settings in proper format order 
     """
-    SETTINGS_FILE = 'settings.ini'
+    my_dir = os.path.dirname(os.path.abspath(__file__))
+    SETTINGS_FILE = os.path.join(my_dir, 'settings.ini')
     env_config = Config(RepositoryEnv(SETTINGS_FILE))
     db_settings = [
         env_config.get('DB_USER'),
@@ -111,8 +115,9 @@ def get_db_settings():
     return db_settings
 
 # Get query from sql file
-def get_sql_queries(sql_file_name,
-                    sql_path = './scripts'
+def get_sql_queries(
+    sql_file_name,
+    sql_path = './scripts'
 ):
     """
     Returns list of queries in string format from SQL file.
@@ -124,7 +129,8 @@ def get_sql_queries(sql_file_name,
         (list): SQL queries
     """
     # sql_file_name = './scripts/uni_utn_untref.sql'
-    sql_file_name = Path(sql_path, sql_file_name).with_suffix('.sql')
+    my_dir = Path(os.path.dirname(os.path.abspath(__file__))).parent
+    sql_file_name = Path(my_dir, sql_path, sql_file_name).with_suffix('.sql')
     with open(sql_file_name, 'r') as f:
         sql_query = f.read()
     # Use of list comprehension for removing zero lenght strings

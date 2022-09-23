@@ -43,6 +43,7 @@ def load_sql(sql_name:str = sql_name) -> None:
 
     Parameters:
     sql_name: Name of the .sql file (Must include the relative path).
+              The default arg is taken from the .env file.
 
     Return:
     None

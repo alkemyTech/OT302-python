@@ -51,7 +51,7 @@ def common_tasks(df, path_to_data_docker):
         logger_kennedy.error("Error: There was a problem to load the csv of location/postal_code")
         logger_latinoamericana.error("Error: There was a problem to load the csv of location/postal_code")
 
-    # Edit column "localidad" in the location/postal_code csv to have lower strings without spaces
+    # Edit column "localidad" in the location/postal_code csv to have lower strings without spaces #
     df_loc_pc["localidad"] = df_loc_pc["localidad"].apply(quit_spaces_dashes)
 
     # Edit "universities" to quit dashes and spaces

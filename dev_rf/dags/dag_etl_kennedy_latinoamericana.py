@@ -35,7 +35,7 @@ with DAG(
         },
     )
 
-    # 2 - Task to perform the pandas processing
+    # 2 - Task to perform the pandas processing #
     pandas = PythonOperator(
         task_id="pandas-processing",
         python_callable=pandas_processing,

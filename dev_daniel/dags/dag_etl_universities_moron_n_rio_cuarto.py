@@ -7,6 +7,7 @@ sys.path.insert(0, f'{work_path}')
 #Import modules created:
 from functions.logger import init_logger
 from functions.extract import load_sql
+from functions.transform import transform_uni_moron, transform_uni_rio_cuarto
 #---------------------------------------------------------------------
 #Other:
 from airflow import DAG
@@ -47,3 +48,4 @@ with DAG(
         extract_task
 
 #---------------------------------------------------------------------
+load_sql()

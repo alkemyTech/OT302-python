@@ -4,9 +4,11 @@
 import logging
 import csv
 import os
+import pandas as pd
 from pathlib import Path
 from decouple import RepositoryEnv, Config
 from sqlalchemy import create_engine
+from dateutil.relativedelta import relativedelta
 
 # Functions
 # Logger Function OT302-40
@@ -53,7 +55,8 @@ def logger(
     # Return Logger
     return custom_logger
 
-# Extract Function OT302-48
+# Extract Functions
+# Python Operator OT302-48
 def extract_from_sql(
     sql_file_name,
     csv_path = './data'
@@ -84,6 +87,8 @@ def extract_from_sql(
             columns = [col[0] for col in cursor.description]
             raw_data = cursor.fetchall()
             my_dir = Path(os.path.dirname(os.path.abspath(__file__))).parent
+            if not Path(my_dir, csv_path).exists():
+                Path(my_dir, csv_path).mkdir(parents = False, exist_ok = False)
             csv_file_name = Path(my_dir, csv_path, f'{n}_{sql_file_name}').with_suffix('.csv')
             with open(csv_file_name, 'w') as f:
                 csv_writer = csv.writer(f, delimiter = ',')
@@ -94,7 +99,7 @@ def extract_from_sql(
         cursor.close()
         connection.close()
 
-# Aux Functions
+# Aux Extract Functions
 # Get Settings
 def get_db_settings():
     """
@@ -102,8 +107,8 @@ def get_db_settings():
     Returns:
         (list): settings in proper format order 
     """
-    my_dir = os.path.dirname(os.path.abspath(__file__))
-    SETTINGS_FILE = os.path.join(my_dir, 'settings.ini')
+    my_dir = Path(os.path.dirname(os.path.abspath(__file__))).parent
+    SETTINGS_FILE = Path(my_dir, 'settings_.ini')
     env_config = Config(RepositoryEnv(SETTINGS_FILE))
     db_settings = [
         env_config.get('DB_USER'),
@@ -135,3 +140,167 @@ def get_sql_queries(
         sql_query = f.read()
     # Use of list comprehension for removing zero lenght strings
     return [e for e in sql_query.split(';') if len(e) > 0]
+
+# Transform Functions
+# General Transform Function used in Python Operator OT302-56
+def transform_universities():
+    """
+    Calls transforming university functions transform_untref() and transform_utn()
+    Pass aggregator dictionary with columns and aux functions
+    Needed for Python Operator
+    Returns:
+        (None): Excecute university functions
+    """
+    transform_settings = {
+        'university' : get_norm,
+        'careers' : get_norm,
+        'inscription_date': get_inc_date,
+        'first_name' : get_norm,
+        'last_name' : get_norm,
+        'gender' : get_gender,
+        'age' : get_age,
+        'postal_code' : get_norm,
+        'location' : get_norm,
+        'email' : get_email
+        }
+
+    transform_untref(transform_settings = transform_settings)
+    transform_utn(transform_settings = transform_settings)
+
+# Functions use for OT302-64
+# Function for aggregation 
+def transform_untref(transform_settings):
+    """
+    Reads data from UTN University CSV file using pandas, transform it and saves in txt file format
+    Args:
+         file_name (str): CSV file name
+
+    Returns:
+        (None): Saves txt file with transformed data
+    """
+    # Custom CSV file name ###### FIX PATH
+    file_name = './data/1_uni_utn_untref.csv'
+    # Read CSV info download from SQL database
+    df = pd.read_csv(
+        Path(file_name).resolve(),
+        dtype = str
+        )
+    # Aggregate dictionary with custom transform functions
+    df = df.agg(transform_settings)
+    # Write TXT file with transformed data
+    df.to_csv(
+        Path(Path(file_name), Path(file_name).stem).with_suffix('.txt').resolve(),
+        sep = ',',
+        index = False,
+        encoding = 'utf8'
+        )
+
+# Function for aggregation and joining postal codes
+def transform_utn(transform_settings):
+    """
+    Reads data from UTN University CSV file using pandas, transform it and saves in txt file format
+    Args:
+         file_name (str): CSV file name
+
+    Returns:
+        (None): Saves txt file with transformed data
+    """
+    # Custom CSV file name
+    file_name = './data/0_uni_utn_untref.csv'
+    # File Path with Postal Code data
+    csv_path = r'https://drive.google.com/file/d/1or8pr7-XRVf5dIbRblSKlRmcP0wiP9QJ/view'
+    # Read CSV postal codes info
+    postals = pd.read_csv(
+        'https://drive.google.com/uc?id={}'.format(csv_path.split('/')[-2]),
+        dtype = str
+        )
+    # Postal codes cleansing
+    postals.loc[:, 'localidad'] = postals.loc[:, 'localidad'].str.casefold()
+    postals.drop_duplicates(subset = 'localidad', inplace = True)
+    # Read CSV info download from SQL database
+    df = pd.read_csv(
+        Path(file_name).resolve(),
+        dtype = str
+        )
+    # Join both dataframes on postal codes
+    merged = pd.merge(
+    left = df,
+    right = postals,
+    left_on = 'postal_code',
+    right_on = 'localidad',
+    how = 'left',
+    )
+    # Deleting and renaming postal code columns
+    merged = merged.drop(
+        columns = ['postal_code', 'localidad']).rename(
+            columns = {'codigo_postal' : 'postal_code'})
+    # Aggregate dictionaty functions
+    merged = merged.agg(transform_settings)
+    # Write TXT file with transformed data
+    merged.to_csv(
+        Path(Path(file_name), Path(file_name).stem).with_suffix('.txt').resolve(),
+        sep = ',',
+        index = False,
+        encoding = 'utf8'
+        )
+
+# Aux Functions used by transform_untref and transform_utn
+def get_age(date):
+    """
+    Calculates age given birth date
+    Args:
+        series (str): date in string format ex '1996-09-15'
+    Returns:
+        (int): Age in int type
+    """
+    # Use to_datetime func to set str to datetime type
+    date = pd.to_datetime(date)
+    # Use relativedelta for year lap issues
+    age = relativedelta(pd.Timestamp.now(), date).years 
+    return age if age > 0 else age + 100
+
+def get_norm(series):
+    """
+    Lower, trim/stripand replace underscore from string data in series 
+    Args:
+        series (pd.series): series of string data to be normalized
+
+    Returns:
+        pd.series: series with normalized data
+    """
+    return series.str.lower().str.strip().replace('_', ' ', regex = True)
+
+def get_gender(gender):
+    """
+    Gender f/m format to female/male
+    Args:
+        gender (str): Gender f/m format
+    Returns:
+        (str): Gender female/male format
+    """
+    result = 'female' if gender.lower() == 'f' else 'male'
+    return result
+
+def get_inc_date(date):
+    """
+    Converts datetime to "%Y-%m-%d" format
+    Args:
+        date (str): Date in string format
+
+    Returns:
+        (str): date in "%Y-%m-%d" format
+    """
+    result = pd.to_datetime(date).strftime("%Y-%m-%d")
+    return result
+
+def get_email(mail):
+    """
+    Lower, trim/strip data
+    Args:
+        mail (pd.series): series of string data to be normalized
+
+    Returns:
+        pd.series: series with normalized data
+    """
+    return mail.str.lower().str.strip()
+

@@ -7,7 +7,7 @@ sys.path.insert(0, f'{work_path}')
 #Import modules created:
 from functions.logger import init_logger
 from functions.extract import extract
-from functions.transform import transform_uni_moron, transform_uni_rio_cuarto
+from functions.transform import transform
 #---------------------------------------------------------------------
 #Other:
 from airflow import DAG
@@ -44,7 +44,11 @@ with DAG(
 
         extract_task = PythonOperator(task_id= "extract", 
                                       python_callable= extract)
+        transforms_task = PythonOperator(task_id= "transform", 
+                                      python_callable= transform)
 
-        extract_task
+        extract_task >> transforms_task
 
 #---------------------------------------------------------------------
+
+transform()

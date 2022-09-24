@@ -6,7 +6,7 @@ sys.path.insert(0, f'{work_path}')
 #---------------------------------------------------------------------
 #Import modules created:
 from functions.logger import init_logger
-from functions.extract import load_sql
+from functions.extract import extract
 from functions.transform import transform_uni_moron, transform_uni_rio_cuarto
 #---------------------------------------------------------------------
 #Other:
@@ -43,9 +43,8 @@ with DAG(
 
 
         extract_task = PythonOperator(task_id= "extract", 
-                                      python_callable= load_sql)
+                                      python_callable= extract)
 
         extract_task
 
 #---------------------------------------------------------------------
-load_sql()

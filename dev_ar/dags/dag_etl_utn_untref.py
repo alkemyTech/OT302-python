@@ -1,5 +1,8 @@
 # Datetime modules
-from datetime import datetime, timedelta
+from datetime import (
+    datetime,
+    timedelta
+    )
 
 # DAG Object
 from airflow import DAG
@@ -9,10 +12,15 @@ from airflow.operators.dummy import DummyOperator
 from airflow.operators.python_operator import PythonOperator
 
 # Functions
-from functions.utils import extract_from_sql, logger
+from functions.utils import (
+    extract_from_sql,
+    logger,
+    transform_universities
+    )
 
 # Logger Config
 # One for each university - Log at DAG
+# 
 logger_untref = logger(logger_name = 'untref')
 logger_utn = logger(logger_name = 'utn')
 
@@ -56,9 +64,10 @@ with DAG(
 
     # Transform task
     # Operator to transform data using pandas
-    transform_pandas = DummyOperator(
-        task_id = 'transform_pandas'
-        #Replace with PythonOperator to import pandas for data transformation
+    transform_pandas = PythonOperator(
+        task_id = 'transform_pandas',
+        # Calls function 
+        python_callable = transform_universities
     )
 
     # Load task

@@ -37,12 +37,15 @@ def logger(
     # Set Level
     custom_logger.setLevel(logging.INFO)
     # Check if dir exists
-    my_dir = Path(os.path.dirname(os.path.abspath(__file__))).parent
+    # my_dir = Path(os.path.dirname(os.path.abspath(__file__))).parent
+    my_dir = Path(__file__).resolve().parents[1]
     logger_file_path = Path(my_dir, logger_file_path)
-    if not Path(logger_file_path).exists():
-        Path(logger_file_path).mkdir(parents = False, exist_ok = False)
+    # if not Path(logger_file_path).exists():
+    if not logger_file_path.exists():
+        logger_file_path.mkdir(parents = False, exist_ok = False)
     # Create File Handler
     # (also can be used StreamHandler() with sys.stdout)
+    # file_handler = logging.FileHandler(Path(logger_file_path, logger_file_name).with_suffix('.txt'))
     file_handler = logging.FileHandler(Path(logger_file_path, logger_file_name).with_suffix('.txt'))
     # Create Formatter and add It to Handler
     custom_formatter = logging.Formatter(
@@ -86,7 +89,7 @@ def extract_from_sql(
             # Get columns names from cursor
             columns = [col[0] for col in cursor.description]
             raw_data = cursor.fetchall()
-            my_dir = Path(os.path.dirname(os.path.abspath(__file__))).parent
+            my_dir = Path(__file__).resolve().parents[1]
             if not Path(my_dir, csv_path).exists():
                 Path(my_dir, csv_path).mkdir(parents = False, exist_ok = False)
             csv_file_name = Path(my_dir, csv_path, f'{n}_{sql_file_name}').with_suffix('.csv')
@@ -107,7 +110,9 @@ def get_db_settings():
     Returns:
         (list): settings in proper format order 
     """
-    my_dir = Path(os.path.dirname(os.path.abspath(__file__))).parent
+    my_dir = Path(__file__).parents[1]
+    ################################################################
+    # Change filename to settings.ini
     SETTINGS_FILE = Path(my_dir, 'settings_.ini')
     env_config = Config(RepositoryEnv(SETTINGS_FILE))
     db_settings = [
@@ -134,7 +139,7 @@ def get_sql_queries(
         (list): SQL queries
     """
     # sql_file_name = './scripts/uni_utn_untref.sql'
-    my_dir = Path(os.path.dirname(os.path.abspath(__file__))).parent
+    my_dir = Path(__file__).resolve().parents[1]
     sql_file_name = Path(my_dir, sql_path, sql_file_name).with_suffix('.sql')
     with open(sql_file_name, 'r') as f:
         sql_query = f.read()
@@ -180,16 +185,17 @@ def transform_untref(transform_settings):
     """
     # Custom CSV file name ###### FIX PATH
     file_name = './data/1_uni_utn_untref.csv'
+    my_dir = Path(__file__).resolve().parents[1]
     # Read CSV info download from SQL database
     df = pd.read_csv(
-        Path(file_name).resolve(),
+        Path(my_dir, file_name),
         dtype = str
         )
     # Aggregate dictionary with custom transform functions
     df = df.agg(transform_settings)
     # Write TXT file with transformed data
     df.to_csv(
-        Path(Path(file_name), Path(file_name).stem).with_suffix('.txt').resolve(),
+        Path(my_dir, file_name).with_suffix('.txt'),
         sep = ',',
         index = False,
         encoding = 'utf8'
@@ -207,6 +213,7 @@ def transform_utn(transform_settings):
     """
     # Custom CSV file name
     file_name = './data/0_uni_utn_untref.csv'
+    my_dir = Path(__file__).resolve().parents[1]
     # File Path with Postal Code data
     csv_path = r'https://drive.google.com/file/d/1or8pr7-XRVf5dIbRblSKlRmcP0wiP9QJ/view'
     # Read CSV postal codes info
@@ -219,7 +226,7 @@ def transform_utn(transform_settings):
     postals.drop_duplicates(subset = 'localidad', inplace = True)
     # Read CSV info download from SQL database
     df = pd.read_csv(
-        Path(file_name).resolve(),
+        Path(my_dir, file_name),
         dtype = str
         )
     # Join both dataframes on postal codes
@@ -238,7 +245,7 @@ def transform_utn(transform_settings):
     merged = merged.agg(transform_settings)
     # Write TXT file with transformed data
     merged.to_csv(
-        Path(Path(file_name), Path(file_name).stem).with_suffix('.txt').resolve(),
+        Path(my_dir, file_name).with_suffix('.txt'),
         sep = ',',
         index = False,
         encoding = 'utf8'
@@ -264,7 +271,6 @@ def get_norm(series):
     Lower, trim/stripand replace underscore from string data in series 
     Args:
         series (pd.series): series of string data to be normalized
-
     Returns:
         pd.series: series with normalized data
     """
@@ -286,7 +292,6 @@ def get_inc_date(date):
     Converts datetime to "%Y-%m-%d" format
     Args:
         date (str): Date in string format
-
     Returns:
         (str): date in "%Y-%m-%d" format
     """
@@ -298,9 +303,7 @@ def get_email(mail):
     Lower, trim/strip data
     Args:
         mail (pd.series): series of string data to be normalized
-
     Returns:
         pd.series: series with normalized data
     """
     return mail.str.lower().str.strip()
-

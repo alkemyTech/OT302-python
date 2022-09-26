@@ -41,16 +41,16 @@ with DAG(
         },
     )
 
-    # # 3.a - Task to load the universidad j. f. kennedy txt file into S3
-    # s3_load_kennedy = PythonOperator(
-    #     task_id="S3-loading_kennedy",
-    #     python_callable=s3_loading,
-    #     op_kwargs={
-    #         "path_to_data_docker": "/opt/airflow/dags/data/",
-    #         "filename": "universidad j. f. kennedy",
-    #         "airflow_connection_id": "alkemy_s3_conn",
-    #     },
-    # )
+    # 3.a - Task to load the universidad j. f. kennedy txt file into S3
+    s3_load_kennedy = PythonOperator(
+        task_id="S3-loading_kennedy",
+        python_callable=s3_loading,
+        op_kwargs={
+            "path_to_data_docker": "/opt/airflow/dags/data/",
+            "filename": "universidad j. f. kennedy",
+            "airflow_connection_id": "alkemy_s3_conn",
+        },
+    )
 
     # 3.b - Task to load the facultad latinoamericana de ciencias sociales txt file into S3
     s3_load_latinoamericana = PythonOperator(
@@ -63,4 +63,4 @@ with DAG(
         },
     )
 
-    queries >> pandas >> s3_load_latinoamericana  # [s3_load_kennedy, s3_load_latinoamericana]
+    queries >> pandas >> [s3_load_kennedy, s3_load_latinoamericana]

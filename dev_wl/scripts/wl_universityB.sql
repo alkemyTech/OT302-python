@@ -17,7 +17,7 @@ SELECT
 	universidad AS university,
 	carrera AS career,
 	CAST(fecha_de_inscripcion  AS DATE) AS inscription_date,
-	nombre,
+	nombre AS name,
 	sexo AS gender,
 	CAST(fecha_nacimiento AS DATE) AS date_birthday,
 	localidad AS location,

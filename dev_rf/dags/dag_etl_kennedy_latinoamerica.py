@@ -1,27 +1,22 @@
 from airflow import DAG
 from airflow.operators.python import PythonOperator
-from airflow.providers.amazon.aws.hooks.s3 import S3Hook
 
 from datetime import datetime, timedelta
 
 from functions.sql_queries import sql_queries
 from functions.pandas_processing import pandas_processing
+from functions.s3_loading import s3_loading
 
 # 5 retries for the tasks
 default_args = {"owner": "rf", "retries": 5, "retry_delta": timedelta(minutes=2)}
 
-
-def s3_loading():
-    """This function is going to have an S3 Hook to load the txt files to S3"""
-
-
+# Performs the tasks hourly
 with DAG(
     dag_id="dag_etl_kennedy_latinoamericana",
     default_args=default_args,
-    start_date=datetime(2022, 9, 19),
+    start_date=datetime(2022, 9, 22),
     schedule_interval="0 * * * *",
 ) as dag:
-    pass
 
     # 1 - Task to perform the SQL Queries
     queries = PythonOperator(
@@ -46,7 +41,26 @@ with DAG(
         },
     )
 
-    # 3 - Task to load the txt files into S3
-    s3_load = PythonOperator(task_id="S3-loading", python_callable=s3_loading)
+    # # 3.a - Task to load the universidad j. f. kennedy txt file into S3
+    # s3_load_kennedy = PythonOperator(
+    #     task_id="S3-loading_kennedy",
+    #     python_callable=s3_loading,
+    #     op_kwargs={
+    #         "path_to_data_docker": "/opt/airflow/dags/data/",
+    #         "filename": "universidad j. f. kennedy",
+    #         "airflow_connection_id": "alkemy_s3_conn",
+    #     },
+    # )
 
-    queries >> pandas >> s3_load
+    # 3.b - Task to load the facultad latinoamericana de ciencias sociales txt file into S3
+    s3_load_latinoamericana = PythonOperator(
+        task_id="S3-loading_latinoamericana",
+        python_callable=s3_loading,
+        op_kwargs={
+            "path_to_data_docker": "/opt/airflow/dags/data/",
+            "filename": "facultad latinoamericana de ciencias sociales",
+            "airflow_connection_id": "alkemy_s3_conn",
+        },
+    )
+
+    queries >> pandas >> s3_load_latinoamericana  # [s3_load_kennedy, s3_load_latinoamericana]

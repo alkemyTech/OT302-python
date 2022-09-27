@@ -50,5 +50,3 @@ with DAG(
         extract_task >> transforms_task
 
 #---------------------------------------------------------------------
-
-transform()

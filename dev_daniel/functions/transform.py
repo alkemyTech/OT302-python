@@ -230,4 +230,3 @@ def transform():
     transform_uni_rio_cuarto('data/Universidad-nacional-de-río-cuarto.csv')
 
 #---------------------------------------------------------------
-transform()

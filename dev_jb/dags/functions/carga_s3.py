@@ -43,3 +43,4 @@ def carga_s3(archivo_path : str,
     
     # Log de aviso de carga del archivo
     logger_a.info(f'Carga del archivo {archivo_nom} a S3 finalizada correctamente')
+

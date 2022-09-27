@@ -73,10 +73,12 @@ with DAG(
 
     # Load task 1 OT302-75
     # Operator to load transformed data into AWS S3
+    # Later make a for loop for tasks
     load_s3_file1 = PythonOperator(
         task_id = 'load_s3_file1',
         # Calls S3 Hook Function
         python_callable = load_S3,
+        # For another connection id add 'aws_conn_id' : 'new_id_connection' in following op_kwargs parameter
         op_kwargs = {'load_S3_file' : '0_uni_utn_untref'}
     )
 
@@ -86,6 +88,7 @@ with DAG(
         task_id = 'load_s3_file2',
         # Calls S3 Hook Function
         python_callable = load_S3,
+        # For another connection id add 'aws_conn_id' : 'new_id_connection' in following op_kwargs parameter
         op_kwargs = {'load_S3_file' : '1_uni_utn_untref'}
     )
 

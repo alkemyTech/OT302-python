@@ -333,5 +333,7 @@ def load_S3(
         # Key name and path for loading in bucket
         key = 'DA-302/{}.txt'.format(load_S3_file),
         # Bucket name
-        bucket_name = 'cohorte-septiembre-5efe33c6'
+        bucket_name = 'cohorte-septiembre-5efe33c6',
+        # Replace key if already in bucket
+        replace = True
         )

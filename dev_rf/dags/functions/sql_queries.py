@@ -14,7 +14,7 @@ logger_latinoamericana = CustomLogger(
 loggers = [logger_kennedy, logger_latinoamericana]
 
 
-def sql_queries(path_sql, airflow_connection_id):
+def sql_queries(path_to_scripts_docker, path_to_data_docker, sql_file_name, airflow_connection_id):
     """This function uses a Postgres Hook to perform the SQL queries to the db.
 
     Parameters
@@ -44,7 +44,7 @@ def sql_queries(path_sql, airflow_connection_id):
 
     # Open sql file and split the queries
     try:
-        with open(path_sql, "r") as f:
+        with open(f"{path_to_scripts_docker}{sql_file_name}.sql", "r") as f:
             queries = f.read().split(";")
     except:
         for logger in loggers:
@@ -61,7 +61,7 @@ def sql_queries(path_sql, airflow_connection_id):
         name_uni = uni_search.group(0).lower().replace("-", " ").replace("'", "").strip()
 
         # Save the query to the csv file into the Docker directory
-        with open(f"/opt/airflow/dags/data/{name_uni}.csv", "w") as f:
+        with open(f"{path_to_data_docker}{name_uni}.csv", "w") as f:
             writer = csv.writer(f)
             writer.writerow(colnames)
             writer.writerows(rows)

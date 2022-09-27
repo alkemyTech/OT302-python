@@ -3,12 +3,12 @@
 # Modules
 import logging
 import csv
-import os
 import pandas as pd
 from pathlib import Path
 from decouple import RepositoryEnv, Config
 from sqlalchemy import create_engine
 from dateutil.relativedelta import relativedelta
+from airflow.providers.amazon.aws.hooks.s3 import S3Hook
 
 # Functions
 # Logger Function OT302-40
@@ -307,3 +307,31 @@ def get_email(mail):
         pd.series: series with normalized data
     """
     return mail.str.lower().str.strip()
+
+# Load functions
+# Functions used for OT302-75 and OT302-76
+def load_S3(
+    load_S3_file,
+    aws_conn_id = 's3_connection'
+    ):
+    """
+    Function for load task DAG
+    Creates an S3 Hook Connection from Airflow Admin Connections
+    Load txt files created in Transform functions
+    Args:
+        load_S3_file (str): list of txt files names without ext.
+        aws_conn_id (str): name of S3 admin connection. Defaults to 's3_connection'
+    Returns:
+        None
+    """
+    # Use admin connections settings for an S3 Hook
+    s3_hook = S3Hook(aws_conn_id = aws_conn_id)
+    # Load file method to get txt file into S3 bucket
+    s3_hook.load_file(
+        # Resolve filepath from __file__ and custom path and txt filename
+        filename = Path(Path(__file__).resolve().parents[1], './data/{}.txt'.format(load_S3_file)),
+        # Key name and path for loading in bucket
+        key = 'DA-302/{}.txt'.format(load_S3_file),
+        # Bucket name
+        bucket_name = 'cohorte-septiembre-5efe33c6'
+        )

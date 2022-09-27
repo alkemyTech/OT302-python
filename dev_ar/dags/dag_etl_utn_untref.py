@@ -15,7 +15,8 @@ from airflow.operators.python_operator import PythonOperator
 from functions.utils import (
     extract_from_sql,
     logger,
-    transform_universities
+    transform_universities,
+    load_S3
     )
 
 # Logger Config
@@ -70,12 +71,23 @@ with DAG(
         python_callable = transform_universities
     )
 
-    # Load task
+    # Load task 1
     # Operator to load transformed data into AWS S3
-    load_S3 = DummyOperator(
-        task_id = 'load_s3'
-        #
+    load_s3_file1 = PythonOperator(
+        task_id = 'load_s3_file1',
+        # Calls S3 Hook Function
+        python_callable = load_S3,
+        op_kwargs = {'load_S3_file' : '0_uni_utn_untref'}
+    )
+
+    # Load task 2
+    # Operator to load transformed data into AWS S3
+    load_s3_file2 = PythonOperator(
+        task_id = 'load_s3_file2',
+        # Calls S3 Hook Function
+        python_callable = load_S3,
+        op_kwargs = {'load_S3_file' : '1_uni_utn_untref'}
     )
 
     #Graph structure
-    sql_queries >> transform_pandas >> load_S3
+    sql_queries >> transform_pandas >> [load_s3_file1, load_s3_file2]

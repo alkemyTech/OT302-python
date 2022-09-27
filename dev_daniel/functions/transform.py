@@ -1,34 +1,52 @@
 import pandas as pd
 from datetime import datetime,date
+import warnings
+warnings.filterwarnings('ignore')
+
 
 #---------------------------------------------------------------
 
 def normalize(x:str) -> str:
-    '''
-    '''
     return x.strip().lower().replace('-',' ')
 
 #---------------------------------------------------------------
 
 def normalize_date(date):
-    '''
-    '''
     return pd.to_datetime(date).strftime("%Y-%m-%d")
 
 #---------------------------------------------------------------
 
 def normalize_gender(gender:str) -> str:
-    '''
-    '''
     return 'male' if gender == 'M' else 'female'
 #---------------------------------------------------------------
 
-def normalize_age(age:str) -> str:
+def normalize_age_moron(age:str) -> str:
     '''
     '''
-    age = age.replace('00','01')
+
     splitted_age = age.split("/")
     age = splitted_age[2] + '-' + splitted_age[1] + '-' + splitted_age[0]
+    age = datetime.strptime(age, '%Y-%m-%d').date()
+
+    age = age.strftime("%Y-%m-%d")
+
+    born = datetime.strptime(age, "%Y-%m-%d").date()
+
+    today = date.today()
+
+    age = today.year - born.year - ((today.month, 
+                                      today.day) < (born.month, 
+                                                    born.day))
+    return age if age >= 0 else age + 100
+#---------------------------------------------------------------
+
+def normalize_age_rio_cuarto(age:str) -> str:
+    '''
+    '''
+
+    splitted_age = age.split("/")
+    age = splitted_age[2] + '-' + splitted_age[1] + '-' + splitted_age[0]
+
     age = datetime.strptime(age, '%d-%b-%y').date()
     age = age.strftime("%Y-%m-%d")
 
@@ -96,7 +114,7 @@ def transform_uni_moron(file_name:str) -> None:
     Parameters:
     file_name: The name of the file. Must include the relative path.
 
-    Return:
+    Returns:
     None
     '''
     df = pd.read_csv(file_name, encoding= 'utf-8')
@@ -105,9 +123,10 @@ def transform_uni_moron(file_name:str) -> None:
     df = normalize_name(df,'moron')
     df['university'] = df['university'].apply(normalize)
     df['career'] = df['career'].apply(normalize)
-    # df['inscription_date'] = df['inscription_date'].apply(normalize_date)
+    df['inscription_date'] = df['inscription_date'].apply(normalize_date)
     df['gender'] = df['gender'].apply(normalize_gender)
-    # df['age'] = df['age'].apply(normalize_age)
+    df['age'] = df['age'].head(5).apply(normalize_age_moron)
+    df['email'] = df['email'].apply(lambda x: x.strip().lower())
 
     df.to_csv('data/moron_clean.csv',encoding='utf-8',index=True)
 
@@ -120,7 +139,7 @@ def transform_uni_rio_cuarto(file_name:str) -> None:
     Parameters:
     file_name: The name of the file. Must include the relative path.
 
-    Return:
+    Returns:
     None
     '''
     df = pd.read_csv(file_name, encoding= 'utf-8')
@@ -131,7 +150,8 @@ def transform_uni_rio_cuarto(file_name:str) -> None:
     df['location'] = df['location'].apply(normalize)
     df['inscription_date'] = df['inscription_date'].apply(normalize_date)
     df['gender'] = df['gender'].apply(normalize_gender)
-    df['age'] = df['age'].apply(normalize_age)
+    df['age'] = df['age'].apply(normalize_age_rio_cuarto)
+    df['email'] = df['email'].apply(lambda x: x.strip().lower())
 
     df.to_csv('data/rio_cuarto_clean.csv',encoding='utf-8',index=True)
 
@@ -142,6 +162,3 @@ def transform():
     transform_uni_rio_cuarto('data/Universidad-nacional-de-río-cuarto.csv')
 
 #---------------------------------------------------------------
-
-transform_uni_moron('data/Universidad de morón.csv')
-transform_uni_rio_cuarto('data/Universidad-nacional-de-río-cuarto.csv')

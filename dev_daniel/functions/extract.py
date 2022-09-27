@@ -1,6 +1,5 @@
 import logging
 import csv
-import re
 import psycopg2
 import pathlib
 import os
@@ -85,7 +84,6 @@ def __generate_csv(record:list, dir_name:str = 'data') -> None:
     Generates a csv file from a list of data.
 
     Parameters:
-    col_names: A list of the names of the columns.
     record: The data that will be stored.
     dir_name: Optional. Directory name where the file will be stored.
                         The default directory name is 'data'
@@ -130,7 +128,7 @@ def extract() -> None:
     queries = __split_sql_file_by_queries('scripts/extract_info_university_moron_n_university_rio_cuarto.sql')
 
     for query in queries:
-        if query != '':
+        if query.strip() != '':
             #Execute the query and store the 
             #result of the execution:
             __generate_csv(__execute_query(query))

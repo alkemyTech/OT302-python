@@ -1,0 +1,35 @@
+dag_factory_etl_utn_untref:
+  default_args:
+    owner: 'dev_rf'
+    start_date: 2022-09-26
+    retries: 5
+    retry_delay_sec: 120
+  schedule_interval: '0 * * * *'
+  description: 'dag_etl_utn_untref'
+  catchup: False
+  tasks:
+    sql_queries:
+      operator: airflow.operators.python_operator.PythonOperator
+      python_callable_name: extract_from_sql
+      python_callable_file: /opt/airflow/dags/functions/utils.py
+      op_kwargs:
+        sql_file_name : 'uni_utn_untref'
+    transform_pandas:
+      operator: airflow.operators.python_operator.PythonOperator
+      python_callable_name: transform_universities
+      python_callable_file: /opt/airflow/dags/functions/utils.py
+      dependencies: [sql_queries]
+    s3_load_kennedy:
+      operator: airflow.operators.python_operator.PythonOperator
+      python_callable_name: load_S3
+      python_callable_file: /opt/airflow/dags/functions/utils.py
+      op_kwargs:
+        load_S3_file : '0_uni_utn_untref'
+      dependencies: [transform_pandas]
+    s3_load_latinoamericana:
+      operator: airflow.operators.python_operator.PythonOperator
+      python_callable_name: load_S3
+      python_callable_file: /opt/airflow/dags/functions/utils.py
+      op_kwargs:
+        load_S3_file : '1_uni_utn_untref'
+      dependencies: [transform_pandas]

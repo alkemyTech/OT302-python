@@ -1,22 +1,18 @@
 from pathlib import Path
+import sys
 import logging
 from typing import Optional
 
 """
 This function should be called when you want to configure logging.
-Called: 'configure_logger( path, university_name)'.
-You must instantiate the log record with 'logger = logging.getLogger()' to be used.
-logger.info('message')
-logger.warning('message')
-logger.error('message')
-
+Called: 'configure_logger(university_name)'.
 """
 
+PATH_DATA = "data"
 
-def configure_logger(
-    log_path: Optional[str] = None, university: Optional[str] = "comahue"
-) -> None:
-    """The function sets the log file to an INFO level
+
+def configure_logger( university: Optional[str] = "comahue" ) -> object:
+    """The function sets the log file to an INFO level for file logger and ERROR por console logger
 
     Args:
         log_path (Optional[str], optional): Path where the log file is created and written. Defaults to None.
@@ -28,14 +24,28 @@ def configure_logger(
     else:
         filename = "salvador_etl.log"
 
-    log_path_file = Path(log_path / filename) if log_path is not None else filename
+    root = Path.cwd()
+    log_path_file = Path(root / PATH_DATA / filename)
 
+    # create logger
+    logger = logging.getLogger(university)
+    logger.setLevel(logging.INFO)
+
+    # create file handler which logs even debug messages
+    f_handler = logging.FileHandler(log_path_file, mode='w')
+    f_handler.setLevel(logging.INFO)
+    # create console handler with a higher log level
+    c_handler = logging.StreamHandler(stream=sys.stdout)
+    c_handler.setLevel(logging.ERROR)
+
+    # create formatter and add it to the handlers
     format_string = f"%(asctime)s - %(filename)s - %(message)s"
+    formatter = logging.Formatter(format_string, datefmt="%Y-%m-%d") 
+    f_handler.setFormatter(formatter)
+    c_handler.setFormatter(formatter)
 
-    logging.basicConfig(
-        filname=log_path_file,
-        level=logging.INFO,
-        format=format_string,
-        datefmt="%Y-%m-%d",
-        filemode="w",
-    )
+    # add the handlers to the logger
+    logger.addHandler(f_handler)
+    logger.addHandler(c_handler)
+
+    return logger

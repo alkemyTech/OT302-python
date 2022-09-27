@@ -71,7 +71,7 @@ with DAG(
         python_callable = transform_universities
     )
 
-    # Load task 1
+    # Load task 1 OT302-75
     # Operator to load transformed data into AWS S3
     load_s3_file1 = PythonOperator(
         task_id = 'load_s3_file1',
@@ -80,7 +80,7 @@ with DAG(
         op_kwargs = {'load_S3_file' : '0_uni_utn_untref'}
     )
 
-    # Load task 2
+    # Load task 2 OT302-76
     # Operator to load transformed data into AWS S3
     load_s3_file2 = PythonOperator(
         task_id = 'load_s3_file2',

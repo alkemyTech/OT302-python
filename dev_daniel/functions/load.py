@@ -95,4 +95,3 @@ def __list_S3_files(client_instance:boto3.client,bucket:str = bucket_name) -> No
 def load():
     __upload_file(__get_connection(),'transformed_data/rio_cuarto_clean.txt','u_rio_cuarto_clean.txt')
     __upload_file(__get_connection(),'transformed_data/moron_clean.txt','u_moron_clean.txt')
-    # __list_S3_files(__get_connection())

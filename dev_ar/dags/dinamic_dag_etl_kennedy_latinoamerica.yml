@@ -1,0 +1,27 @@
+dag_etl_kennedy_latinoamericana:
+  default_args:
+    owner: 'rf'
+    retries: 5
+    "retry_delta": timedelta(minutes=2)
+  dag_id: 'dag_etl_kennedy_latinoamericana'
+  start_date: 2022-9-22
+  schedule_interval: '0 * * * *'
+  tasks:
+    sql-queries:
+      operator: airflow.operators.python_operator.PythonOperator
+      python_callable_name: sql_queries
+      python_callable_file: ./functions/sql_queries.py
+    pandas-processing:
+      operator: airflow.operators.python_operator.PythonOperator
+      python_callable_name: pandas_processing
+      python_callable_file: ./functions/pandas_processing.py
+    S3-loading_kennedy:
+      operator: airflow.operators.python_operator.PythonOperator
+      python_callable_name: s3_loading
+      python_callable_file: ./functions/s3_loading.py
+      dependencies: [pandas-processing]
+    S3-loading_latinoamericana:
+      operator: airflow.operators.python_operator.PythonOperator
+      python_callable_name: s3_loading
+      python_callable_file: ./functions/s3_loading.py
+      dependencies: [pandas-processing]

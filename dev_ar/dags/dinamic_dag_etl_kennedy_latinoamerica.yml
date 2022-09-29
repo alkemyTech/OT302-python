@@ -1,27 +1,32 @@
-dag_etl_kennedy_latinoamericana:
+dinamic_dag_etl_kennedy_latam:
   default_args:
     owner: 'rf'
+    start_date: 2022-09-22
     retries: 5
-    "retry_delta": timedelta(minutes=2)
-  dag_id: 'dag_etl_kennedy_latinoamericana'
-  start_date: 2022-9-22
+    retry_delta: '0/2 * * * *'
+  dag_id: 'dinamic_dag_etl_kennedy_latino'
   schedule_interval: '0 * * * *'
   tasks:
     sql-queries:
       operator: airflow.operators.python_operator.PythonOperator
       python_callable_name: sql_queries
-      python_callable_file: ./functions/sql_queries.py
+      python_callable_file: ${PWD}/dags/OT302-python/dev_ar/dags/functions/sql_queries.py
+      op_kwargs: {"path_to_scripts_docker": "scripts/", "path_to_data_docker": "data/", "sql_file_name": "sql_univ_kennedy_latinoamericana", "airflow_connection_id": "postgres_alkemy",}
     pandas-processing:
       operator: airflow.operators.python_operator.PythonOperator
       python_callable_name: pandas_processing
-      python_callable_file: ./functions/pandas_processing.py
+      python_callable_file: ${PWD}/dags/OT302-python/dev_ar/dags/functions/pandas_processing.py
+      op_kwargs: {"path_to_data_docker": "data/", "univ_kennedy_file_name": "universidad j. f. kennedy", "facu_latinoamericana_file_name": "facultad latinoamericana de ciencias sociales",}
+      dependencies: [sql-queries]
     S3-loading_kennedy:
       operator: airflow.operators.python_operator.PythonOperator
       python_callable_name: s3_loading
-      python_callable_file: ./functions/s3_loading.py
+      python_callable_file: ${PWD}/dags/OT302-python/dev_ar/dags/functions/s3_loading.py
+      op_kwargs: {"path_to_data_docker": "data/", "filename": "universidad j. f. kennedy", "airflow_connection_id": "alkemy_s3_conn",}
       dependencies: [pandas-processing]
     S3-loading_latinoamericana:
       operator: airflow.operators.python_operator.PythonOperator
       python_callable_name: s3_loading
-      python_callable_file: ./functions/s3_loading.py
+      python_callable_file: ${PWD}/dags/OT302-python/dev_ar/dags/functions/s3_loading.py
+      op_kwargs: {"path_to_data_docker": "/data/", "filename": "facultad latinoamericana de ciencias sociales", "airflow_connection_id": "alkemy_s3_conn",}
       dependencies: [pandas-processing]

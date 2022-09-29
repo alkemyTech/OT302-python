@@ -496,7 +496,7 @@ universidad de morón,licenciatura en relaciones del trabajo,2020-10-16,justin,h
 universidad de morón,medicina,2020-12-27,donald,jones,male,33,1915,cabaña el cisne,freemanpatricia@yahoo.com
 universidad de morón,licenciatura en ciencias biológicas,2020-10-28,christopher,hicks,male,111,7214,azul,fwilliams@yahoo.com
 universidad de morón,licenciatura en ciencias de la computación,2020-11-14,jamie,richardson,male,43,8307,azul,veronica09@gmail.com
-universidad de morón,licenciatura en ciencias antropológicas,2020-05-10,timothy,cunningham,male,18,5384,ramos mejia,oburton@yahoo.com
+universidad de morón,licenciatura en ciencias antropológicas,2020-05-10,timothy,cunningham,male,19,5384,ramos mejia,oburton@yahoo.com
 universidad de morón,licenciatura en ciencia y tecnología de alimentos,2021-01-29,michelle,hall,female,85,3557,ramos mejia,barbermelissa@hotmail.com
 universidad de morón,diseño industrial,2020-05-10,james,smith,male,47,5519,sey,jaredfoster@gmail.com
 universidad de morón,licenciatura en ciencias geológicas,2020-05-11,gregory,roman,male,97,3540,sey,cervantessara@hotmail.com
@@ -678,7 +678,7 @@ universidad de morón,licenciatura en planificación y diseño del paisaje,2020-
 universidad de morón,licenciatura en psicología,2020-08-12,john,montes,male,24,3267,don torcuato,johnnybrowning@hotmail.com
 universidad de morón,licenciatura en sociología,2020-11-19,michael,hernandez,male,41,6233,don torcuato,jason69@hotmail.com
 universidad de morón,actuario,2021-01-29,john,clark,male,74,5509,don torcuato,sarahadkins@yahoo.com
-universidad de morón,licenciatura en planificación y diseño del paisaje,2021-05-01,samantha,stewart,female,74,6424,barrio indio trompa,emily62@hotmail.com
+universidad de morón,licenciatura en planificación y diseño del paisaje,2021-05-01,samantha,stewart,female,75,6424,barrio indio trompa,emily62@hotmail.com
 universidad de morón,licenciatura en ciencia y tecnología de alimentos,2020-04-10,robert,lee,male,29,4142,barrio indio trompa,nguyenryan@hotmail.com
 universidad de morón,arquitectura,2020-11-09,kristine,gilmore,female,67,2701,barrio indio trompa,wendy95@yahoo.com
 universidad de morón,licenciatura en ciencia y tecnología de alimentos,2020-05-09,mark,sanchez,male,116,4500,barrio indio trompa,henrybenjamin@yahoo.com
@@ -1397,7 +1397,7 @@ universidad de morón,licenciatura en administración,2021-01-27,austin,payne,ma
 universidad de morón,bioquímica,2020-09-22,vincent,davis,male,3,5345,trujui,nvargas@gmail.com
 universidad de morón,licenciatura en ciencias geológicas,2020-04-12,jake,hernandez,male,98,2206,trujui,herreragabrielle@hotmail.com
 universidad de morón,licenciatura en ciencias antropológicas,2020-09-26,alexis,schmidt,female,89,5579,apostoles,autumn53@hotmail.com
-universidad de morón,ingeniería en informática,2021-04-01,ashley,wall,female,67,1911,apostoles,nicole87@gmail.com
+universidad de morón,ingeniería en informática,2021-04-01,ashley,wall,female,68,1911,apostoles,nicole87@gmail.com
 universidad de morón,licenciatura en artes,2020-09-15,paul,johnson,male,55,5573,correa,prattlinda@gmail.com
 universidad de morón,contador público,2020-01-12,natasha,thomas,female,25,2303,correa,carolhall@hotmail.com
 universidad de morón,licenciatura en ciencias de la educación,2021-01-01,james,miller,male,28,3226,el tropezon,haynesjohn@yahoo.com
@@ -1573,7 +1573,7 @@ universidad de morón,diseño de imagen y sonido,2020-12-22,krista,martin,female
 universidad de morón,licenciatura en ciencias de la computación,2020-12-16,daniel,little,male,54,3023,barrio la union,bwright@gmail.com
 universidad de morón,contador público,2020-12-24,alexandra,nguyen,female,78,2500,arroyo castillo,leonardbridget@yahoo.com
 universidad de morón,licenciatura en terapia ocupacional,2020-12-15,amy,castaneda,female,2,6051,aguay,marissa92@yahoo.com
-universidad de morón,licenciatura en ciencia política,2020-11-13,danielle,sanchez,female,86,5529,el triunfo,rebecca74@yahoo.com
+universidad de morón,licenciatura en ciencia política,2020-11-13,danielle,sanchez,female,87,5529,el triunfo,rebecca74@yahoo.com
 universidad de morón,actuario,2021-01-18,brian,newman,male,85,3262,el talar,christian00@yahoo.com
 universidad de morón,ingeniería mecánica,2020-05-09,joshua,johnson,male,67,5503,cristiano muerto,yutyler@hotmail.com
 universidad de morón,ciencias veterinarias,2020-09-17,jeanette,marshall,female,28,8416,cuesta del ternero,denisestrickland@yahoo.com

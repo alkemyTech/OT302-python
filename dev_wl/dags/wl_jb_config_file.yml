@@ -1,0 +1,40 @@
+wl_jb_dags:
+  default_args:
+    owner: 'jeremy'
+    depends_on_past: False
+    start_date: 2022-09-18
+    schedule_interval: '0 * * * *'
+    catchup: False
+    retries: 5
+  description: 'ETL para recopilacion de datos sobre estudiantes de las universidades de Flores y Villa Maria'
+  tasks:
+    exportacion_datos:
+      operator: airflow.operators.python_operator.PythonOperator
+      task_id: 'task_01-exportacion_de_datos_al_local'
+      python_callable_name: sql_a_csv
+      python_callable_file: /opt/airflow/dags/functions/ejecucion_sql.py
+      op_args: ['/c/Users/Jeremy/airflow/dags/scripts','queries_extraccion_datos_unis.sql','/c/Users/Jeremy/airflow/dags/data',2]
+    procesamiento_de_datos:
+      operator: airflow.operators.python_operator.PythonOperator
+      task_id: 'task_02-procesamiento_de_datos'
+      python_callable_name: procesmiento_datos
+      python_callable_file: /opt/airflow/dags/functions/procesamiento_datos.py
+      op_args: ['/c/Users/Jeremy/airflow/dags/scripts','queries_extraccion_datos_unis.sql','/c/Users/Jeremy/airflow/dags/data', 2]
+      dependencies: [exportacion_datos]
+    carga_s3_a1:
+      operator: airflow.operators.python_operator.PythonOperator
+      task_id: 'task_03-carga_de_archivo_universidad_de_flores_txt_a_S3'
+      python_callable_name: carga_s3
+      python_callable_file: /opt/airflow/dags/functions/carga_s3.py
+      op_args: ['/c/Users/Jeremy/airflow/dags/data','universidad_nacional_de_villa_maría.txt','aws_conn']
+      dependencies: [procesamiento_de_datos]
+    carga_s3_a2:
+      operator: airflow.operators.python_operator.PythonOperator
+      task_id: 'task_04-carga_de_archivo_universidad_nacional_de_villa_maría_txt_a_S3'
+      python_callable_name: carga_s3
+      python_callable_file: /opt/airflow/dags/functions/carga_s3.py
+      op_args: ['/c/Users/Jeremy/airflow/dags/data','universidad_nacional_de_villa_maría.txt','aws_conn']
+      dependencies: [procesamiento_de_datos]
+
+    
+    

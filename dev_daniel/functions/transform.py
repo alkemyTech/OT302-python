@@ -1,8 +1,12 @@
 import pandas as pd
 from datetime import datetime,date
 import warnings
+import pathlib
+import os
 warnings.filterwarnings('ignore')
-
+#---------------------------------------------------------------
+work_path = pathlib.Path().resolve()
+#---------------------------------------------------------------
 
 #---------------------------------------------------------------
 
@@ -192,7 +196,9 @@ def transform_uni_moron(file_name:str) -> None:
 
     df = organize_features(df)
 
-    df.to_csv('data/moron_clean.txt',encoding='utf-8',index=False)
+    os.makedirs(os.path.dirname(f'{work_path}/transformed_data/'), exist_ok=True)
+
+    df.to_csv('transformed_data/moron_clean.txt',encoding='utf-8',index=False)
 
 #---------------------------------------------------------------
 
@@ -220,8 +226,9 @@ def transform_uni_rio_cuarto(file_name:str) -> None:
 
     df = organize_features(df)
 
+    os.makedirs(os.path.dirname(f'{work_path}/transformed_data/'), exist_ok=True)
 
-    df.to_csv('data/rio_cuarto_clean.txt',encoding='utf-8',index=False)
+    df.to_csv('transformed_data/rio_cuarto_clean.txt',encoding='utf-8',index=False)
 
 #---------------------------------------------------------------
 

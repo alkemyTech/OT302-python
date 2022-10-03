@@ -337,3 +337,16 @@ def load_S3(
         # Replace key if already in bucket
         replace = True
         )
+
+# Aux Pathfile Function
+def get_abs_path(rel_path):
+    """
+    Aux function for
+    Args:
+        rel_path (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    dir_base = Path(__file__).resolve().parents[1]
+    return Path(dir_base, rel_path)

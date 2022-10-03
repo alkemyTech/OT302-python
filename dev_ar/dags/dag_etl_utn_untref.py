@@ -8,7 +8,7 @@ from datetime import (
 from airflow import DAG
 
 # Airflow Operators
-from airflow.operators.dummy import DummyOperator
+# from airflow.operators.dummy import DummyOperator
 from airflow.operators.python_operator import PythonOperator
 
 # Functions

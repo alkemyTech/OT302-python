@@ -8,6 +8,7 @@ sys.path.insert(0, f'{work_path}')
 from functions.logger import init_logger
 from functions.extract import extract
 from functions.transform import transform
+from functions.load import load
 #---------------------------------------------------------------------
 #Other:
 from airflow import DAG
@@ -44,10 +45,14 @@ with DAG(
 
         extract_task = PythonOperator(task_id= "extract", 
                                       python_callable= extract)
-        transforms_task = PythonOperator(task_id= "transform", 
+
+        transform_task = PythonOperator(task_id= "transform", 
                                       python_callable= transform)
 
-        extract_task >> transforms_task
+        load_task = PythonOperator(task_id= "load", 
+                                python_callable= load)
+                                
+
+        extract_task >> transform_task >> load_task
 
 #---------------------------------------------------------------------
-#

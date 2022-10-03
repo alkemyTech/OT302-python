@@ -6,7 +6,6 @@ SELECT  universidad,
 		sexo,
 		fecha_nacimiento,
 		codigo_postal,
-		direccion,
 		correo_electronico AS email
 FROM flores_comahue fc 
 WHERE universidad  LIKE 'UNIVERSIDAD DE FLORES'
@@ -19,8 +18,8 @@ SELECT  universidad,
 		fecha_de_inscripcion, 
 		nombre,
 		sexo,
-		fecha_nacimiento, 
-		direccion,
+		fecha_nacimiento,
+		localidad,
 		email
 FROM salvador_villa_maria svm
 WHERE universidad LIKE 'UNIVERSIDAD_NACIONAL_DE_VILLA_MARÍA'

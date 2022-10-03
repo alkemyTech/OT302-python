@@ -1,6 +1,6 @@
 ### Files ###
 requirements.txt
-functions/transform.py
+.env
 
 ### Folders ###
 *__pycache__/

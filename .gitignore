@@ -6,4 +6,3 @@ dev_wl/functions/__init__.py
 #dev_esteban/
 dev_esteban/dags/.env
 dev_esteban/dags/functions/load.py
-dev_esteban/dags/functions/logging_setup_c.py

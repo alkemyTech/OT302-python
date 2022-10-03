@@ -3,27 +3,26 @@ from airflow import DAG
 from datetime import timedelta, datetime
 import os
 
-from functions.extract import *
-from functions.transform import ProcessData
+from functions.extract import extract
+from functions.transform import process_data
+from functions.load import load_jujuy, load_palermo
 
 # Import operators
-# from airflow.operators.dummy_operator import DummyOperator
-# from airflow.operators.bash import BashOperator
-# from airflow.providers.postgres.operators.postgres import PostgresOperator
 from airflow.operators.python import PythonOperator
 # from airflow.providers.amazon.aws.operators.s3 import S3CreateObjectOperator
 
-path = os.getcwd()+"/ot302-python/dev_esteban/dags"
-# creating default config for dag
+# path = os.getcwd()+"/dev_esteban/dags"
+path = '/Users/sergioboada/.airflow/ot302-python/dev_esteban/dags'
+# Creacion default de args
 default_args={
     'owner':'dev esteban boada',
     'retries':5,
-    'retry_delay':timedelta(minutes=5)
+    'retry_delay':timedelta(minutes=2)
 }
 
-# definning DAG
+# Definir DAG
 with DAG(
-    dag_id='dag_uni_c_retries_v01',
+    dag_id='uni_c_v02',
     default_args=default_args,
     description='''
     Ejecutar tareas de universidades del grupo C.
@@ -31,7 +30,7 @@ with DAG(
         * Universidad Nacional de Jujuy
     ''',
     start_date=datetime(2022, 9, 27),
-    schedule_interval='@daily',
+    schedule_interval='0 * * * *',
     catchup=False
 
 ) as dag:
@@ -46,36 +45,33 @@ with DAG(
         }
 
     )
-    # # Depurar archivo original y crear uno nuevo
-    # transform = PythonOperator(
-    #     task_id='transform_data',
-    #     python_callable=,
-    #     op_kwargs={
-    #         'path_csv_dir': f"{path}/files/",
-    #         'sql_files':[f"{path}/scripts/uni_jujuy.sql",f"{path}/scripts/uni_palermo.sql"]
-    #     }
-    # )
+    # Depurar archivo original y crear uno nuevo
+    transform = PythonOperator(
+        task_id='transform_data',
+        python_callable=process_data,
+        op_kwargs={
+            'path_csv_dir': f"{path}/files/"
+        }
+    )
+
+    load_jujuy_data = PythonOperator(
+        task_id='load jujuy university data',
+        python_callable=load_jujuy,
+        op_kwargs={
+            'path_csv_dir': f"{path}/files/"
+        }
+    )
+
+    load_palermo_data = PythonOperator(
+        task_id='load palermo university data',
+        python_callable=load_palermo,
+        op_kwargs={
+            'path_csv_dir': f"{path}/files/"
+        }
+    )
   
 # Define task.
     '''
-    Operators a implementar:
-
-    #Initi PostgreSQL Server
-    connect_psql = BashOperator(
-        bash_command='prepare.sh',
-        env={
-            'env_var1':'path/javajdk.jar',
-            'env_var2':'path/postgres/'
-        }
-    )
-    #Execute Queries Jujuy and Palermo
-    
-    
-
-    #Transform Data Jujuy and Palermo
-    
-    
-    
     #Load transformed data to AWS.S3
     load_jujuy = S3CreateObjectOperator(
         aws_conn_id='',
@@ -99,4 +95,4 @@ with DAG(
     connect_sql >> [query_jujuy, query_palermo] >> [transform_jujuy,transform_palermo] >> [load_jujuy, load_palermo]
 
     '''
-    query
+    query >> transform >> [ load_jujuy_data, load_palermo_data ]

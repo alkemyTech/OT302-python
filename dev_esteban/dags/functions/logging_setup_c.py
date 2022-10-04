@@ -1,5 +1,4 @@
 import logging as lg
-from unicodedata import name
 
 from colorlog import getLogger
 

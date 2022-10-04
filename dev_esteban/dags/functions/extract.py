@@ -44,7 +44,7 @@ def extract(path_csv_dir: str, sql_scripts: List, db_connection: str) -> None:
             index=False,
             na_rep=pd.NA
         )
-        jujuy_logger.info('palermo.csv loaded successfully')
+        palermo_logger.info('palermo.csv loaded successfully')
     except Exception as e:
         palermo_logger.debug(f"Cannot load {path_csv_dir}palermo.csv ({e.args})")
 
@@ -63,8 +63,8 @@ def _setup_connection():
         db = create_engine(link) 
         return db
     except Exception as e:
-        jujuy_logger.critical(f"Error to connect to database {database}")
-        palermo_logger.critical(f"Error to connect to database {database}")
+        jujuy_logger.critical(f"Error to connect to database {database} ({e.args})")
+        palermo_logger.critical(f"Error to connect to database {database} ({e.args})")
         return None
 
 

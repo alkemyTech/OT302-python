@@ -5,7 +5,7 @@ import os
 
 from functions.extract import extract
 from functions.transform import process_data
-from functions.load import load_jujuy, load_palermo
+from functions.load_boto3 import load_jujuy, load_palermo
 
 # Import operators
 from airflow.operators.python import PythonOperator
@@ -22,7 +22,7 @@ default_args={
 
 # Definir DAG
 with DAG(
-    dag_id='uni_c_v02',
+    dag_id='uni_c_v01',
     default_args=default_args,
     description='''
     Ejecutar tareas de universidades del grupo C.
@@ -55,7 +55,7 @@ with DAG(
     )
 
     load_jujuy_data = PythonOperator(
-        task_id='load jujuy university data',
+        task_id='load_jujuy_data_v01',
         python_callable=load_jujuy,
         op_kwargs={
             'path_csv_dir': f"{path}/files/"
@@ -63,36 +63,11 @@ with DAG(
     )
 
     load_palermo_data = PythonOperator(
-        task_id='load palermo university data',
+        task_id='load_palermo_data_v01',
         python_callable=load_palermo,
         op_kwargs={
             'path_csv_dir': f"{path}/files/"
         }
     )
   
-# Define task.
-    '''
-    #Load transformed data to AWS.S3
-    load_jujuy = S3CreateObjectOperator(
-        aws_conn_id='',
-        s3_key='',
-        data='',
-        replace=True
-    )
-    load_palermo = S3CreateObjectOperator(
-        aws_conn_id='',
-        s3_key='',
-        data='',
-        replace=True
-    )
-
-    connect_psql.set_downstream(query_jujuy, query_palermo)
-    query_jujuy.set_downstream(transform_jujuy)
-    query_palermo.set_downstream(transform_palermo)
-    transform_jujuy.set_downstream(load_jujuy)
-    transform_palermo.set_downstream(load_palermo)
-    --------------------------------------------
-    connect_sql >> [query_jujuy, query_palermo] >> [transform_jujuy,transform_palermo] >> [load_jujuy, load_palermo]
-
-    '''
-    query >> transform >> [ load_jujuy_data, load_palermo_data ]
+    query >> transform >> [load_jujuy_data, load_palermo_data]

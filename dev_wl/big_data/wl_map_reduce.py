@@ -7,6 +7,7 @@ import collections
 import csv
 import pandas as pd
 from pathlib import Path
+import time
 
 FILE_PATH = "dev_wl/meta_stackOverflow/posts.xml"
 def mapper(xmlfile):
@@ -209,6 +210,7 @@ def savetoCSV(data, filename, fields, type_data):
 
 if __name__ == "__main__":
     
+    start = time.time()
     # set path root
     root = Path.cwd()
     
@@ -224,6 +226,10 @@ if __name__ == "__main__":
     # llama a la funcion que reduce los datos segun las consignas a resolver y retorna un listado con 3 elementos con los datos reducidos
     list_result = reduce(list_shuffled)
     
+    end = time.time()
+
+    print(end - start)
+
     # Graba los resultados en un CSV
     savetoCSV(list_result[0], "top10tags.csv", ["TAG", "COUNT"], 1)
     savetoCSV(list_result[1], "words-views.csv", ["WORDS_COUNT", "VIEW_COUNT"], 1)

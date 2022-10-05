@@ -3,3 +3,7 @@ dev_wl/functions/airflow_dag_simulator.py
 dev_wl/functions/__pycache__/*
 dev_wl/functions/__init__.py
 dev_wl/dags/prueba_dag_dynamics.py
+dev_wl/log
+dev_wl/meta_stackOverflow
+dev_wl/big_data/borrador.txt
+dev_wl/big_data/borrador2.txt

@@ -3,12 +3,37 @@
 # Modules
 import xml.etree.ElementTree as ET
 import re
+import numpy as np
 from pathlib import Path
 from datetime import datetime
 from operator import itemgetter
 from bigdata_logger import bigdata_logger
 
 # Functions
+
+# Main Mapreduce Functions
+def mapreduce_tasker(
+    xml_file_path,
+    map_root,
+    reduce
+    ):
+    """
+    Get functions as params
+    Args:
+        xml_file_path (int): xml file path
+        map_root (function): task map function
+        reduce (function): task reduce function
+    """
+    return reduce(
+        map_root(
+            map_function(
+                get_single_xml(
+                    xml_file_path = xml_file_path
+                    )
+                )
+            )
+        )
+
 # XML Parser Function
 def get_dict_from_xml_files(files_path):
     """
@@ -49,7 +74,7 @@ def get_single_xml(
         raise FileNotFoundError(f'File {xml_file_path} not fount.')
     return ET.parse(xml_file_path).getroot()
 
-# Mapping Function
+# Mapping Functions
 def map_function(
     xml_root,
     ):
@@ -108,6 +133,7 @@ def reducer_task_3(
     # Use of sorted standard python function for aggregation
     return sorted(mapped_tuples, key = itemgetter(1), reverse = True)[0:10]
 
+
 def mapper_task_2(
     mapped_xml
     ):
@@ -137,15 +163,18 @@ def reducer_task_2(
     mapped_tuples
     ):
     """
-        Basic reducer function, using sum, list and zip Built-in Functions methods. Return just the ratio of both.
-        Use std library operator.itemgetter for key in sorting
+        Function that uses numpy to get the linear regression slope as the ratio between answers and scores
+        Alt-not implemented: Basic reducer function, using sum, list and zip Built-in Functions methods. Return just the ratio of both.
     Args:
         mapped_tuples (list of tuples): List of tuples with AnswerCount and Score.
     Returns:
-        Float: AnswerCount and Score ratio
+        Float: AnswerCount and Score ratio as the regression slope
     """
-    result = list(zip(*mapped_tuples))
-    return sum(result[0]) / sum(result[1])
+    # Use numpy polyfit method to get the regr slope
+    reg = np.array(mapped_tuples)
+    return np.polyfit(x = reg[:, 0], y = reg[:, 1], deg = 1)[0]
+    # result = list(zip(*mapped_tuples))
+    # return sum(result[0]) / sum(result[1])
 
 def mapper_task_1(
     mapped_xml

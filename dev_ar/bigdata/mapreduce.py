@@ -134,7 +134,7 @@ def mapper_task_2(
     return regression
 
 def reducer_task_2(
-    result_tuples
+    mapped_tuples
     ):
     """
         Basic reducer function, using sum, list and zip Built-in Functions methods. Return just the ratio of both.
@@ -144,7 +144,7 @@ def reducer_task_2(
     Returns:
         Float: AnswerCount and Score ratio
     """
-    result = list(zip(*result_tuples))
+    result = list(zip(*mapped_tuples))
     return sum(result[0]) / sum(result[1])
 
 def mapper_task_1(
@@ -171,7 +171,7 @@ def mapper_task_1(
     return top_tags
 
 def reducer_task_1(
-    result_tuples
+    mapped_tuples
     ):
     """
         Extremely Basic reducer function, using for loop and try-except block to build a dictionary with every tag count/sum.
@@ -181,7 +181,7 @@ def reducer_task_1(
         dictionary: dict with tags as keys and sum as values
     """
     d = {}
-    for k, v in result_tuples:
+    for k, v in mapped_tuples:
         try:
             d[k] += v
         except KeyError:

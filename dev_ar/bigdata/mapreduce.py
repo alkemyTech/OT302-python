@@ -34,6 +34,21 @@ def get_dict_from_xml_files(files_path):
     xml_dict = {root.tag : root for root in xml_list}
     return xml_dict
 
+def get_single_xml(
+    xml_file_path
+    ):
+    """
+        Functions to extract data from a single XML file
+    Args:
+        xml_file_path (str): file path
+    Returns:
+        iterable root: root from xlm file to be used in mapreduce functions
+    """
+    xml_file_path = Path(__file__).resolve().parent / xml_file_path
+    if not xml_file_path.resolve().exists():
+        raise FileNotFoundError(f'File {xml_file_path} not fount.')
+    return ET.parse(xml_file_path).getroot()
+
 # Mapping Function
 def map_function(
     xml_root,

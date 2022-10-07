@@ -1,0 +1,39 @@
+dynamic_dag_etl_UNP_n_UAI:
+
+  default_args:
+    owner: 'dev_daniel'
+    start_date: 2022-10-01 
+    end_date: 2022-11-01
+    retries: 5
+    retry_delay_sec: 300
+
+  schedule_interval: '0 3 * * *'
+  concurrency: 1
+  max_active_runs: 1
+  dagrun_timeout_sec: 60
+  default_view: 'tree'  # or 'graph', 'duration', 'gantt', 'landing_times'
+  orientation: 'LR'  # or 'TB', 'RL', 'BT'
+  description: 'Dynamic dag etl UNP n UAI '
+
+  tasks:
+  
+    extract_task:
+      operator: airflow.operators.python_operator.PythonOperator
+      python_callable_name: 'get_connection'
+      python_callable_file: "/opt/airflow/dags/functions/query.py"
+      op_kwargs:
+        pampa: "/opt/airflow/dags/functions/Querys/files/pampa.csv"
+        inter: "/opt/airflow/dags/functions/Querys/files/inter.csv"
+      
+
+    transform_task:
+      operator: airflow.operators.python_operator.PythonOperator
+      python_callable_name: 'file_transform'
+      python_callable_file: "/opt/airflow/dags/functions/transform.py"
+      dependencies: [extract_task]
+
+    load_task:
+      operator: airflow.operators.python_operator.PythonOperator
+      python_callable_name: 'upload_s3'
+      python_callable_file:  "/opt/airflow/dags/functions/s3.py"
+      dependencies: [transform_task]

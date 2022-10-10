@@ -6,10 +6,7 @@ import re
 import numpy as np
 from pathlib import Path
 from datetime import datetime
-from operator import itemgetter, add
-from functools import reduce
-from itertools import islice
-from typing import Iterable
+from operator import itemgetter
 from bigdata_logger import bigdata_logger
 
 # Functions

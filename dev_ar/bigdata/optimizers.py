@@ -1,7 +1,9 @@
 
 # Modules
-from itertools import chain
+from itertools import chain, islice
+from functools import reduce
 from itertools import islice
+from typing import Iterable
 from mapreduce import *
 
 # Chunkify Functions

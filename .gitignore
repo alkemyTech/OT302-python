@@ -10,3 +10,6 @@ dev_wl/big_data/borrador2.txt
 .vscode
 dev_wl/bigdata/__pycache__
 dev_wl/bigdata/.pytest_cache
+dev_wl/bigdata/bigdata_logger.py
+dev_wl/bigdata/logger_config.cfg
+dev_wl/bigdata/mapreduce.ipynb

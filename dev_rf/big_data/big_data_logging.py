@@ -3,7 +3,7 @@ from logging import config
 import os
 
 
-def set_logging_config():
+def configured_logger():
     """This function is going to setup the ogger using the logger.cfg file.
     The logger has 2 functions:
     1 - Display the logging messages in the console

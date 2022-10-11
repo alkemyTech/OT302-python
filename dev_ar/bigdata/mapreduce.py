@@ -12,8 +12,27 @@ from bigdata_logger import bigdata_logger
 # Functions
 
 # Main Mapreduce Functions
+# Tasker Functions
 def mapreduce_tasker(
     xml_file_path,
+    map_root,
+    reduce
+    ):
+    """
+    Get functions as params
+    Args:
+        xml_file_path (int): xml file path
+        map_root (function): task map function
+        reduce (function): task reduce function
+    """
+    return mapreduce_tasker_from_root(
+        xml_root = get_single_xml(xml_file_path = xml_file_path),
+        map_root = map_root,
+        reduce = reduce
+        )
+
+def mapreduce_tasker_from_root(
+    xml_root,
     map_root,
     reduce
     ):
@@ -27,14 +46,13 @@ def mapreduce_tasker(
     return reduce(
         map_root(
             map_function(
-                get_single_xml(
-                    xml_file_path = xml_file_path
-                    )
+                xml_root
                 )
             )
         )
 
 # XML Parser Function
+# Dictionary with every xml file
 def get_dict_from_xml_files(files_path):
     """
         Function that takes xlm files path as argument end returns dictionary with xml tags and roots
@@ -59,6 +77,7 @@ def get_dict_from_xml_files(files_path):
     xml_dict = {root.tag : root for root in xml_list}
     return xml_dict
 
+# Single XML file parser
 def get_single_xml(
     xml_file_path
     ):
@@ -75,6 +94,7 @@ def get_single_xml(
     return ET.parse(xml_file_path).getroot()
 
 # Mapping Functions
+# Root to attribute dictionary
 def map_function(
     xml_root,
     ):
@@ -91,10 +111,8 @@ def map_function(
     mapped_xml = map(lambda x: x.attrib, xml_root)
     return mapped_xml
 
-def reduce_tasks(result_tuples):
-    pass
-
 # Map-Reduce Functions
+# Task Ticket 3
 def mapper_task_3(
     mapped_xml
     ):
@@ -119,6 +137,20 @@ def mapper_task_3(
             deltas.append(aux_tuple)
     return deltas
 
+def _mapper_task_3(item):
+    """
+        Aux function that returns single tuple with id and timedelta using CreationDate and LastActivityDate
+        For using in reduce optimized method
+    Args:
+        item (dict from root object): dictionary get from getroot method of and xlm file
+    Returns:
+        tuple: tuple with Id and Timedelta set in days
+    """
+    if item.get('PostTypeId') == '1':
+        aux_delta = datetime.fromisoformat(item['LastActivityDate']) - datetime.fromisoformat(item['CreationDate'])
+        aux_tuple = (item['Id'], aux_delta.days)
+        return aux_tuple
+
 def reducer_task_3(
     mapped_tuples
     ):
@@ -133,7 +165,7 @@ def reducer_task_3(
     # Use of sorted standard python function for aggregation
     return sorted(mapped_tuples, key = itemgetter(1), reverse = True)[0:10]
 
-
+# Task Ticket 2
 def mapper_task_2(
     mapped_xml
     ):
@@ -159,6 +191,19 @@ def mapper_task_2(
         regression.append((answers, scores))
     return regression
 
+def _mapper_task_2(item):
+    """
+        Aux Function that returns a sinle tuple with answers and score
+    Args:
+        item (dict):  dictionary get from getroot method of and xlm file
+
+    Returns:
+        tuple: tuple with answers and scores
+    """
+    answers = 0 if item.get('AnswerCount') is None else int(item.get('AnswerCount', 0))
+    scores = int(item.get('Score', 0))
+    return (answers, scores)
+
 def reducer_task_2(
     mapped_tuples
     ):
@@ -171,11 +216,12 @@ def reducer_task_2(
         Float: AnswerCount and Score ratio as the regression slope
     """
     # Use numpy polyfit method to get the regr slope
-    reg = np.array(mapped_tuples)
+    reg = np.array(list(mapped_tuples))
     return np.polyfit(x = reg[:, 0], y = reg[:, 1], deg = 1)[0]
     # result = list(zip(*mapped_tuples))
     # return sum(result[0]) / sum(result[1])
 
+# Task Ticket 1
 def mapper_task_1(
     mapped_xml
     ):
@@ -194,10 +240,23 @@ def mapper_task_1(
         # Check if post has no accepted answers and tags are present
         if xml_item.get('AcceptedAnswerId') is None and xml_item.get('Tags') is not None:
             for t in _get_tags(xml_item.get('Tags')):
-                # Predefined tuple 
+                # Predefined tuple
                 top_tags.append((t, 1))
             # top_tags.append([(e, 1) for e in _get_tags(xml_tuple.get('Tags'))])
     return top_tags
+
+def _mapper_task_1(item):
+    """
+        Aux Function that returns a list of single tuples with tags.
+        Needs to be flatten later in shuffle function
+    Args:
+        item (dict):  dictionary get from getroot method of and xlm file
+    Returns:
+        list: list of tuples with tags en the (tag, 1) format
+    """
+    if item.get('AcceptedAnswerId') is None and item.get('Tags') is not None:
+        return [(i, 1) for i in _get_tags(item.get('Tags'))]
+
 
 def reducer_task_1(
     mapped_tuples
@@ -220,7 +279,16 @@ def reducer_task_1(
     return ordered
 
 # Aux Functions
+# Regex Parser Getter
 def _get_tags(string):
+    """
+        Aux functions thar uses regex to parse tags from xml
+    Args:
+        string (str): tag string
+
+    Returns:
+        list: list of string tags
+    """
     if string is None:
         return None
     return re.findall(r'<(.+?)>', string)

@@ -147,8 +147,8 @@ def _mapper_task_3(item):
         tuple: tuple with Id and Timedelta set in days
     """
     if item.get('PostTypeId') == '1':
-        aux_delta = datetime.fromisoformat(item['LastActivityDate']) - datetime.fromisoformat(item['CreationDate'])
-        aux_tuple = (item['Id'], aux_delta.days)
+        aux_delta = datetime.fromisoformat(item.get('LastActivityDate')) - datetime.fromisoformat(item.get('CreationDate'))
+        aux_tuple = (item.get('Id'), aux_delta.days)
         return aux_tuple
 
 def reducer_task_3(

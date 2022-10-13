@@ -5,7 +5,7 @@ from big_data_logging import configured_logger
 logger = configured_logger()
 
 
-def get_answer_dict(root):
+def get_answer_dict():
     """Function to get the answers ids with the creation dates
 
     Parameters
@@ -19,9 +19,10 @@ def get_answer_dict(root):
             Dictionary that has as key the answer_id and as value the creation_date
 
     """
-
-    logger.info("Starting the mapper module...")
-
+    # Load and parse the posts.xml file
+    tree = ET.parse("./112010 Meta Stack Overflow/posts.xml")
+    # Get the root of the xml
+    root = tree.getroot()
     # Initialize variable
     answer_dict = {}
 
@@ -36,7 +37,7 @@ def get_answer_dict(root):
     return answer_dict
 
 
-def mapper():
+def mapper(chunk):
     """Function used to map the 3 required tasks:
         - 1 - Top 10 posts views
         - 2 - Top 10 words in tags
@@ -52,11 +53,7 @@ def mapper():
             List of dicts. Each dict has key 'Score' and 'ResponseTime' in hours.
 
     """
-    # ./112010 Meta Stack Overflow/posts.xml
-    # Load and parse the posts.xml file
-    tree = ET.parse("./112010 Meta Stack Overflow/posts.xml")
-    # Get the root of the xml
-    root = tree.getroot()
+    logger.info("Starting the mapper module...")
 
     # Initialize variables
     post_views = []
@@ -64,12 +61,10 @@ def mapper():
     score_answertime = []
 
     # Get the answer dict. key=answer_id, value=CreationDate
-    answer_dict = get_answer_dict(root)
+    answer_dict = get_answer_dict()
 
     # Loop into each row element
-    for child in root:
-        # Get the attributes of each row element
-        dict = child.attrib
+    for dict in chunk:
 
         # 1 - Top 10 posts views
         # Append to the list the post_id and the view_count of each post

@@ -1,0 +1,35 @@
+etl_dyn_dag_comahue_salvador:
+  default_args:
+    owner: 'wl'
+    start_date: 2022-01-01
+    retries: 5
+  dag_id: 'etl_dyn_dag_comahue_salvador'
+  schedule_interval: '0 * * * *'
+  tasks:
+    put_csv:
+      operator: airflow.operators.python.PythonOperator
+      task_id: 'put_csv'
+      python_callable: load_csv
+      python_callable_files: ${pwd}/Users/jeremy/airflow/dyn_dag/src/functions/load_csv.py
+      op_kwards: {'engine': 'pg_engine', 'user': 'pg_user', 'pass' : 'pg_pass', 'port' : 'pg_port', 'db' : 'pg_db'}
+    put_txt:
+      operator: airflow.operators.python.PythonOperator
+      task_id: 'put_txt'
+      python_callable: normalizer
+      python_callable_files: ${pwd}/Users/jeremy/airflow/dyn_dag/src/functions/normalizer.py
+      op_kwards: {['universidad-comahue.csv', 'universidad-salvador.csv'], '/c/Users/jeremy/airflow/dyn_dag/src/data'}
+      dependencies: [put_csv]
+    upload_txt_comahue:
+      operator: airflow.operators.python.PythonOperator
+      task_id: 'upload_txt_comahue'
+      python_callable: s3_upload_file
+      python_callable_files: ${pwd}/Users/jeremy/airflow/dyn_dag/src/functions/s3_upload_file.py
+      op_kwards: {'universidad-comahue.txt', 'bucket', 'my_key', 'secret_access_key', 'region_name'}
+      dependencies: [put_txt]
+    upload_txt_salvador:
+      operator: airflow.operators.python.PythonOperator
+      task_id: 'upload_txt_comahue'
+      python_callable: s3_upload_file
+      python_callable_files: ${pwd}/Users/jeremy/airflow/dyn_dag/src/functions/s3_upload_file.py
+      op_kwards: {'universidad-salvador.txt', 'bucket', 'my_key', 'secret_access_key', 'region_name'}
+      dependencies: [put_txt]

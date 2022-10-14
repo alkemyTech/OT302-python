@@ -1,0 +1,6 @@
+### Files ###
+requirements.txt
+.env
+
+### Folders ###
+*__pycache__/

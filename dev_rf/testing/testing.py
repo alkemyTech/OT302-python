@@ -5,7 +5,7 @@
 #   - Demora de respuesta promedio en posts
 
 # Tests have been done to what can be tested. The final results are outside a function
-# so they cannot be tested in a separate file.
+# so they cannot be tested in a separate file..
 
 import datetime
 

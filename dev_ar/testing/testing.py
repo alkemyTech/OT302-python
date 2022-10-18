@@ -32,12 +32,15 @@ class Test_MapReduce:
     # To be used on above function calls
     @pytest.mark.parametrize(
         'result, idx, types', [
+            # Tests for wl_map_reduce.mapper function results
             (mapper_result, 0, list),
             (mapper_result, 1, list),
             (mapper_result, 2, list),
+            # Tests for wl_map_reduce.shuffle_sort function results
             (shuffle_sort_result, 0, list),
             (shuffle_sort_result, 1, list),
             (shuffle_sort_result, 2, list),
+            # Tests for  wl_map_reduce.reduce function results
             (reduce_result, 0, list),
             (reduce_result, 1, list),
             (reduce_result, 2, pd.Series)
@@ -57,7 +60,7 @@ class Test_MapReduce:
         assert isinstance(result[idx], types)
 
     # Parameters for three main functions type results
-    # Parametrizes results of mapreduce functions. Should be lists of lists.
+    # Parametrizes results of all three mapreduce functions. Should be lists of lists.
     @pytest.mark.parametrize(
         'result', [
             mapper_result, shuffle_sort_result, reduce_result
@@ -95,6 +98,8 @@ class Test_MapReduce:
 
     # Parameter for testing the actual result in one function
     # Checked result for one of the final results
+    # Index 0 for first ticker result in list of lists, as function was seted.
+    # 1 or 2 ticket results can be added as 1 or 2 index in the form of "(0, [RESULT])"" tuple as below parametrized marks
     @pytest.mark.parametrize(
         'idx2, results', [
             (0, [('discussion', 2916), ('feature-request', 2815), ('bug', 1396), ('support', 1261), ('stackoverflow', 848), ('status-completed', 647), ('tags', 524), ('reputation', 427), ('area51', 372), ('questions', 354)])

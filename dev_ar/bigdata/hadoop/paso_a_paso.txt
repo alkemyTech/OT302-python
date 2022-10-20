@@ -1,0 +1,37 @@
+***************
+Paso a paso Hadoop
+
+[Bajar y correr la imagen de Hadoop en Docker]
+docker pull sequenceiq/hadoop-docker:2.7.1
+docker run -it sequenceiq/hadoop-docker:2.7.1 /etc/bootstrap.sh -bash
+
+[Desde el bash dentro del container de docker de hadoop, crear carpeta]
+mkdir extras
+cd extras/
+docker ps [para conocer el CONTAINER ID]
+
+[Desde otra terminal copiar los archivos]
+docker cp hadoop_mapper.py [CONTAINER ID]:extras/hadoop_mapper.py
+docker cp hadoop_reducer.py [CONTAINER ID]:extras/hadoop_reducer.py
+docker cp posts.xml [CONTAINER ID]:extras/posts.xml
+docker cp hadoop-streaming-2.7.1.jar [CONTAINER ID]:extras/hadoop-streaming-2.7.1.jar 
+[Se puede descargar desde https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-streaming/2.7.1/]
+
+[Desde la terminal del containter docker hadoop copiar los archivos al sistema de archivos distribuidos]
+/usr/local/hadoop/bin/hadoop fs -mkdir -p /extras/in
+/usr/local/hadoop/bin/hdfs dfs -put ./* /extras/in
+
+[Cambiar los permisos]
+chmod a+x scripts/mapper.py
+
+[Por último probar distintas posibilidades con los archivos.py]
+/usr/local/hadoop/bin/hadoop jar hadoop-streaming-2.7.1.jar -mapper hadoop_mapper.py -reducer hadoop_reducer.py -input /extras/in/posts.xml -output extras/in/output_001
+
+/usr/local/hadoop/bin/hadoop jar hadoop-streaming-2.7.1.jar -mapper extras/in/hadoop_mapper.py -reducer extras/in/hadoop_reducer.py -input /extras/in/posts.xml -output extras/in/output_002
+
+/usr/local/hadoop/bin/hadoop jar hadoop-streaming-2.7.1.jar -mapper 'python hadoop_mapper.py' -reducer 'python hadoop_reducer.py' -input /extras/in/posts.xml -output extras/in/output_003
+
+/usr/local/hadoop/bin/hadoop jar hadoop-streaming-2.7.1.jar -files hadoop_mapper.py,hadoop_reducer.py -mapper 'python hadoop_mapper.py' -reducer 'python hadoop_reducer.py' -input /extras/in/posts.xml -output extras/in/output_004
+
+
+

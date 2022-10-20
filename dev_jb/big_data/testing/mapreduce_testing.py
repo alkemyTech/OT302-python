@@ -81,3 +81,4 @@ Resultado: passed
 def test_mapreduce_average_answer_time(
 ):
     assert average_answer_time == 4.64395
+    
